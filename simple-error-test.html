@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Error Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .pass { background: #d4edda; color: #155724; }
+        .fail { background: #f8d7da; color: #721c24; }
+        .error { background: #fff3cd; color: #856404; }
+        pre { background: #f8f9fa; padding: 15px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Simple Error Handling Test</h1>
+    <div id="results"></div>
+    <h3>Console Output:</h3>
+    <pre id="console"></pre>
+
+    <script>
+        // Enhanced console capture
+        let consoleOutput = '';
+        const originalConsole = {
+            log: console.log,
+            error: console.error,
+            warn: console.warn
+        };
+
+        function updateConsole() {
+            document.getElementById('console').textContent = consoleOutput;
+        }
+
+        console.log = function(...args) {
+            const message = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ');
+            consoleOutput += '[LOG] ' + message + '\n';
+            updateConsole();
+            originalConsole.log.apply(console, args);
+        };
+
+        console.error = function(...args) {
+            const message = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ');
+            consoleOutput += '[ERROR] ' + message + '\n';
+            updateConsole();
+            originalConsole.error.apply(console, args);
+        };
+
+        console.warn = function(...args) {
+            const message = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ');
+            consoleOutput += '[WARN] ' + message + '\n';
+            updateConsole();
+            originalConsole.warn.apply(console, args);
+        };
+
+        let testResults = [];
+
+        function addTest(name, status, message = '') {
+            testResults.push({ name, status, message });
+            updateResults();
+        }
+
+        function updateResults() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = testResults.map(test => {
+                const className = test.status === 'pass' ? 'pass' : test.status === 'fail' ? 'fail' : 'error';
+                return `<div class="test ${className}">
+                    <strong>${test.name}:</strong> ${test.status.toUpperCase()}
+                    ${test.message ? `<br><small>${test.message}</small>` : ''}
+                </div>`;
+            }).join('');
+        }
+
+        // Test 1: Load ContentLoader
+        console.log('=== Starting Simple Error Tests ===');
+        
+        try {
+            console.log('Testing script loading...');
+            
+            // Load scripts dynamically and test them
+            const scripts = [
+                'game/content-loader.js',
+                'game/game-state.js',
+                'game/question-presenter.js'
+            ];
+            
+            let loadedScripts = 0;
+            
+            scripts.forEach((scriptPath, index) => {
+                const script = document.createElement('script');
+                script.src = scriptPath;
+                
+                script.onload = function() {
+                    console.log(`✅ Loaded: ${scriptPath}`);
+                    loadedScripts++;
+                    
+                    if (loadedScripts === scripts.length) {
+                        // All scripts loaded, run tests
+                        setTimeout(runTests, 100);
+                    }
+                };
+                
+                script.onerror = function() {
+                    console.error(`❌ Failed to load: ${scriptPath}`);
+                    addTest(`Load ${scriptPath}`, 'fail', 'Script failed to load');
+                };
+                
+                document.head.appendChild(script);
+            });
+            
+        } catch (error) {
+            console.error('Error in test setup:', error);
+            addTest('Test Setup', 'error', error.message);
+        }
+
+        function runTests() {
+            console.log('=== Running Error Handling Tests ===');
+            
+            // Test ContentLoader
+            try {
+                console.log('Testing ContentLoader...');
+                if (typeof ContentLoader === 'undefined') {
+                    throw new Error('ContentLoader is not defined');
+                }
+                
+                const loader = new ContentLoader();
+                addTest('ContentLoader Creation', 'pass');
+                
+                // Test fallback mechanism
+                loader.clear();
+                const question = loader.getNextQuestion();
+                if (question && question.prompt) {
+                    addTest('ContentLoader Fallback', 'pass', `Got question: "${question.prompt}"`);
+                } else {
+                    addTest('ContentLoader Fallback', 'fail', 'No fallback question returned');
+                }
+                
+            } catch (error) {
+                console.error('ContentLoader test error:', error);
+                addTest('ContentLoader Test', 'error', error.message);
+            }
+
+            // Test GameStateManager
+            try {
+                console.log('Testing GameStateManager...');
+                if (typeof GameStateManager === 'undefined') {
+                    throw new Error('GameStateManager is not defined');
+                }
+                
+                const gameState = new GameStateManager();
+                addTest('GameStateManager Creation', 'pass');
+                
+                // Test invalid state
+                const initialState = gameState.getCurrentState();
+                gameState.setState('invalid_state_123');
+                if (gameState.getCurrentState() === initialState) {
+                    addTest('GameStateManager Invalid State', 'pass', 'Correctly rejected invalid state');
+                } else {
+                    addTest('GameStateManager Invalid State', 'fail', `State changed from ${initialState} to ${gameState.getCurrentState()}`);
+                }
+                
+            } catch (error) {
+                console.error('GameStateManager test error:', error);
+                addTest('GameStateManager Test', 'error', error.message);
+            }
+
+            // Test QuestionPresenter
+            try {
+                console.log('Testing QuestionPresenter...');
+                if (typeof QuestionPresenter === 'undefined') {
+                    throw new Error('QuestionPresenter is not defined');
+                }
+                
+                const presenter = new QuestionPresenter();
+                addTest('QuestionPresenter Creation', 'pass');
+                
+                // Test null question handling
+                presenter.displayQuestion(null);
+                if (typeof presenter.isQuestionVisible === 'function') {
+                    const isVisible = presenter.isQuestionVisible();
+                    if (!isVisible) {
+                        addTest('QuestionPresenter Null Handling', 'pass', 'Correctly rejected null question');
+                    } else {
+                        addTest('QuestionPresenter Null Handling', 'fail', 'Should not display null question');
+                    }
+                } else {
+                    addTest('QuestionPresenter Null Handling', 'error', 'isQuestionVisible method not found');
+                }
+                
+            } catch (error) {
+                console.error('QuestionPresenter test error:', error);
+                addTest('QuestionPresenter Test', 'error', error.message);
+            }
+
+            console.log('=== Tests Complete ===');
+            const summary = testResults.reduce((acc, test) => {
+                acc[test.status] = (acc[test.status] || 0) + 1;
+                return acc;
+            }, {});
+            
+            console.log('Test Summary:', summary);
+        }
+    </script>
+</body>
+</html>

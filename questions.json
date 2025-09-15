@@ -1,0 +1,8 @@
+{
+    "questions": [
+      { "q": "2 + 2", "options": [3, 4, 5], "answer": 4 },
+      { "q": "5 × 3", "options": [15, 10, 20], "answer": 15 },
+      { "q": "10 ÷ 2", "options": [2, 5, 10], "answer": 5 }
+    ]
+  }
+  

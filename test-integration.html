@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ContentLoader Integration Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .pass { background-color: #d4edda; color: #155724; }
+        .fail { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>ContentLoader Integration Test</h1>
+    <div id="test-results"></div>
+
+    <script src="game/content-loader.js"></script>
+    <script>
+        const results = document.getElementById('test-results');
+
+        function addResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = message;
+            results.appendChild(div);
+        }
+
+        function addCode(code) {
+            const pre = document.createElement('pre');
+            pre.textContent = code;
+            results.appendChild(pre);
+        }
+
+        async function runTests() {
+            addResult('🧪 Starting ContentLoader Integration Tests', 'info');
+
+            try {
+                // Test 1: Basic initialization
+                addResult('Test 1: Basic Initialization');
+                const loader = new ContentLoader();
+                
+                if (loader.questions.length === 0 && 
+                    Object.keys(loader.metadata).length === 0 && 
+                    loader.currentQuestionIndex === 0) {
+                    addResult('✅ ContentLoader initializes correctly', 'pass');
+                } else {
+                    addResult('❌ ContentLoader initialization failed', 'fail');
+                }
+
+                // Test 2: Load valid questions
+                addResult('Test 2: Loading Valid Questions');
+                const result = await loader.loadQuestions('data/math-basic.json');
+                
+                if (result.success && loader.questions.length > 0) {
+                    addResult(`✅ Successfully loaded ${loader.questions.length} questions`, 'pass');
+                    addResult(`Metadata: ${loader.metadata.title}`, 'info');
+                } else {
+                    addResult(`❌ Failed to load questions: ${result.error}`, 'fail');
+                }
+
+                // Test 3: Question validation
+                addResult('Test 3: Question Validation');
+                const validData = {
+                    questions: [
+                        {
+                            prompt: 'Test question?',
+                            options: ['A', 'B', 'C'],
+                            answer: 'A',
+                            feedback: 'Good job!'
+                        }
+                    ]
+                };
+                
+                const validation = loader.validateQuestionFormat(validData);
+                if (validation.isValid) {
+                    addResult('✅ Valid question format accepted', 'pass');
+                } else {
+                    addResult('❌ Valid question format rejected', 'fail');
+                    addCode(JSON.stringify(validation.errors, null, 2));
+                }
+
+                // Test 4: Invalid question rejection
+                const invalidData = {
+                    questions: [
+                        {
+                            prompt: '',
+                            options: ['A'],
+                            answer: 'B',
+                            feedback: ''
+                        }
+                    ]
+                };
+                
+                const invalidValidation = loader.validateQuestionFormat(invalidData);
+                if (!invalidValidation.isValid && invalidValidation.errors.length > 0) {
+                    addResult('✅ Invalid question format correctly rejected', 'pass');
+                    addResult(`Found ${invalidValidation.errors.length} validation errors`, 'info');
+                } else {
+                    addResult('❌ Invalid question format not properly rejected', 'fail');
+                }
+
+                // Test 5: Question cycling
+                addResult('Test 4: Question Cycling');
+                if (loader.hasQuestions()) {
+                    const q1 = loader.getNextQuestion();
+                    const q2 = loader.getNextQuestion();
+                    
+                    if (q1 && q2) {
+                        addResult('✅ Questions cycle correctly', 'pass');
+                        addResult(`First question: "${q1.prompt}"`, 'info');
+                        addResult(`Second question: "${q2.prompt}"`, 'info');
+                    } else {
+                        addResult('❌ Question cycling failed', 'fail');
+                    }
+                } else {
+                    addResult('❌ No questions available for cycling test', 'fail');
+                }
+
+                // Test 6: Utility methods
+                addResult('Test 5: Utility Methods');
+                const count = loader.getQuestionCount();
+                const hasQuestions = loader.hasQuestions();
+                const currentIndex = loader.getCurrentQuestionIndex();
+                const metadata = loader.getMetadata();
+                
+                addResult(`✅ Question count: ${count}`, 'pass');
+                addResult(`✅ Has questions: ${hasQuestions}`, 'pass');
+                addResult(`✅ Current index: ${currentIndex}`, 'pass');
+                addResult(`✅ Metadata title: ${metadata.title}`, 'pass');
+
+                // Test 7: Error handling
+                addResult('Test 6: Error Handling');
+                const errorResult = await loader.loadQuestions('nonexistent.json');
+                if (!errorResult.success && errorResult.error) {
+                    addResult('✅ Error handling works correctly', 'pass');
+                    addResult(`Error message: ${errorResult.error}`, 'info');
+                } else {
+                    addResult('❌ Error handling failed', 'fail');
+                }
+
+                addResult('🎉 All tests completed!', 'pass');
+
+            } catch (error) {
+                addResult(`❌ Test suite failed: ${error.message}`, 'fail');
+                console.error('Test error:', error);
+            }
+        }
+
+        // Run tests when page loads
+        window.addEventListener('load', runTests);
+    </script>
+</body>
+</html>

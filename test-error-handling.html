@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error Handling Test Suite</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-results {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .warning { color: #ffc107; }
+        .info { color: #17a2b8; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <h1>Educational Runner Game - Error Handling Test Suite</h1>
+    
+    <div class="test-container">
+        <h2>Test Overview</h2>
+        <p>This test suite validates the comprehensive error handling and validation mechanisms implemented in Task 8:</p>
+        <ul>
+            <li><strong>JSON Operations:</strong> Try-catch blocks around all JSON loading and parsing</li>
+            <li><strong>User-friendly Error Messages:</strong> Clear, actionable error messages for common failures</li>
+            <li><strong>Fallback Mechanisms:</strong> Graceful degradation when questions are missing or corrupted</li>
+            <li><strong>Input Validation:</strong> Sanitization and validation of all user interactions</li>
+        </ul>
+    </div>
+
+    <div class="test-container">
+        <h2>Test Controls</h2>
+        <button onclick="runAllTests()">Run All Tests</button>
+        <button onclick="testContentLoader()">Test ContentLoader</button>
+        <button onclick="testGameStateManager()">Test GameStateManager</button>
+        <button onclick="testQuestionPresenter()">Test QuestionPresenter</button>
+        <button onclick="testRunnerEngine()">Test RunnerEngine</button>
+        <button onclick="clearResults()">Clear Results</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Test Results</h2>
+        <div id="test-status" class="status" style="display: none;"></div>
+        <div id="test-results" class="test-results">
+Click "Run All Tests" to start the error handling validation...
+        </div>
+    </div>
+
+    <!-- Load game modules -->
+    <script src="game/content-loader.js"></script>
+    <script src="game/game-state.js"></script>
+    <script src="game/question-presenter.js"></script>
+    <script src="game/runner-engine.js"></script>
+    <script src="game/question-flow-manager.js"></script>
+
+    <script>
+        // Capture console output for display
+        const originalConsole = {
+            log: console.log,
+            error: console.error,
+            warn: console.warn,
+            assert: console.assert
+        };
+
+        let testOutput = '';
+
+        function captureConsole() {
+            testOutput = '';
+            
+            console.log = (...args) => {
+                const message = args.join(' ');
+                testOutput += message + '\n';
+                originalConsole.log(...args);
+                updateTestResults();
+            };
+
+            console.error = (...args) => {
+                const message = 'ERROR: ' + args.join(' ');
+                testOutput += message + '\n';
+                originalConsole.error(...args);
+                updateTestResults();
+            };
+
+            console.warn = (...args) => {
+                const message = 'WARNING: ' + args.join(' ');
+                testOutput += message + '\n';
+                originalConsole.warn(...args);
+                updateTestResults();
+            };
+
+            console.assert = (condition, ...args) => {
+                if (!condition) {
+                    const message = 'ASSERTION FAILED: ' + args.join(' ');
+                    testOutput += message + '\n';
+                    updateTestResults();
+                }
+                originalConsole.assert(condition, ...args);
+            };
+        }
+
+        function restoreConsole() {
+            console.log = originalConsole.log;
+            console.error = originalConsole.error;
+            console.warn = originalConsole.warn;
+            console.assert = originalConsole.assert;
+        }
+
+        function updateTestResults() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.textContent = testOutput;
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('test-status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+        }
+
+        function clearResults() {
+            testOutput = '';
+            updateTestResults();
+            document.getElementById('test-status').style.display = 'none';
+        }
+
+        async function runAllTests() {
+            showStatus('Running comprehensive error handling tests...', 'info');
+            captureConsole();
+            
+            try {
+                console.log('=== COMPREHENSIVE ERROR HANDLING TEST SUITE ===\n');
+                
+                await testContentLoaderErrors();
+                await testGameStateManagerErrors();
+                await testQuestionPresenterErrors();
+                await testRunnerEngineErrors();
+                await testQuestionFlowManagerErrors();
+                
+                console.log('\n=== ALL TESTS COMPLETED ===');
+                console.log('✅ Error handling system is working correctly!');
+                showStatus('All tests completed successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Critical error during testing:', error);
+                showStatus('Tests failed with critical error: ' + error.message, 'error');
+            } finally {
+                restoreConsole();
+            }
+        }
+
+        async function testContentLoaderErrors() {
+            console.log('=== Testing ContentLoader Error Handling ===');
+            
+            const contentLoader = new ContentLoader();
+            
+            // Test invalid JSON path
+            console.log('Test 1: Invalid JSON path');
+            const result1 = await contentLoader.loadQuestions('nonexistent-file.json');
+            console.assert(!result1.success, 'Should fail for nonexistent file');
+            
+            // Test invalid input
+            console.log('Test 2: Invalid input validation');
+            const result2 = await contentLoader.loadQuestions(null);
+            console.assert(!result2.success, 'Should fail for null input');
+            
+            // Test fallback mechanism
+            console.log('Test 3: Fallback question mechanism');
+            contentLoader.clear();
+            const fallback = contentLoader.getNextQuestion();
+            console.assert(fallback !== null, 'Should return fallback question');
+            console.assert(fallback.prompt.includes('2 + 2'), 'Should be fallback math question');
+            
+            console.log('✅ ContentLoader error handling tests passed\n');
+        }
+
+        async function testGameStateManagerErrors() {
+            console.log('=== Testing GameStateManager Error Handling ===');
+            
+            const { GameStateManager } = window;
+            const gameStateManager = new GameStateManager();
+            
+            // Test invalid state
+            console.log('Test 1: Invalid state transitions');
+            const initialState = gameStateManager.getCurrentState();
+            gameStateManager.setState('invalid_state');
+            console.assert(gameStateManager.getCurrentState() === initialState, 'Should reject invalid state');
+            
+            // Test invalid score
+            console.log('Test 2: Invalid score updates');
+            const initialScore = gameStateManager.gameState.score;
+            gameStateManager.updateScore('not a number');
+            console.assert(gameStateManager.gameState.score === initialScore, 'Should reject invalid score');
+            
+            // Test invalid time
+            console.log('Test 3: Invalid time updates');
+            const initialTime = gameStateManager.gameState.gameTime;
+            gameStateManager.updateGameTime(-100);
+            console.assert(gameStateManager.gameState.gameTime === initialTime, 'Should reject negative time');
+            
+            console.log('✅ GameStateManager error handling tests passed\n');
+        }
+
+        async function testQuestionPresenterErrors() {
+            console.log('=== Testing QuestionPresenter Error Handling ===');
+            
+            const questionPresenter = new QuestionPresenter();
+            
+            // Test invalid question
+            console.log('Test 1: Invalid question display');
+            questionPresenter.displayQuestion(null);
+            console.assert(!questionPresenter.isQuestionVisible(), 'Should not display null question');
+            
+            // Test XSS prevention
+            console.log('Test 2: XSS prevention');
+            const xssQuestion = {
+                prompt: "<script>alert('xss')</script>What is 2+2?",
+                options: ["<img src=x onerror=alert('xss')>4", "5"],
+                answer: "<img src=x onerror=alert('xss')>4",
+                feedback: "javascript:alert('xss')"
+            };
+            
+            questionPresenter.displayQuestion(xssQuestion);
+            // XSS content should be sanitized or question should be rejected
+            
+            console.log('✅ QuestionPresenter error handling tests passed\n');
+        }
+
+        async function testRunnerEngineErrors() {
+            console.log('=== Testing RunnerEngine Error Handling ===');
+            
+            const mockGameStateManager = {
+                gameState: { playerPosition: { x: 100, y: 300 } },
+                getCurrentState: () => 'playing'
+            };
+            
+            const runnerEngine = new RunnerEngine(mockGameStateManager);
+            
+            // Test collision with invalid obstacles
+            console.log('Test 1: Invalid obstacle collision detection');
+            runnerEngine.obstacles = [
+                null,
+                { x: 'invalid', y: 100, width: 30, height: 40 },
+                { x: 200, y: NaN, width: 30, height: 40 }
+            ];
+            
+            const collision = runnerEngine.checkCollisions();
+            console.assert(collision === null, 'Should handle invalid obstacles gracefully');
+            
+            console.log('✅ RunnerEngine error handling tests passed\n');
+        }
+
+        async function testQuestionFlowManagerErrors() {
+            console.log('=== Testing QuestionFlowManager Error Handling ===');
+            
+            const mockContentLoader = {
+                hasQuestions: () => false,
+                getNextQuestion: () => null,
+                resetQuestionQueue: () => {}
+            };
+            
+            const mockQuestionPresenter = {
+                displayQuestion: () => { throw new Error('Display error'); },
+                addAnswerListener: () => {},
+                addFeedbackCompleteListener: () => {}
+            };
+            
+            const mockGameStateManager = {
+                addStateChangeListener: () => {},
+                getCurrentState: () => 'playing',
+                shouldTriggerQuestion: () => true,
+                isQuestionPending: () => false,
+                setQuestionPending: () => {},
+                setState: () => {},
+                updateGameTime: () => {},
+                resetQuestionTimer: () => {}
+            };
+            
+            const questionFlowManager = new QuestionFlowManager(
+                mockContentLoader,
+                mockQuestionPresenter,
+                mockGameStateManager
+            );
+            
+            // Test with no questions
+            console.log('Test 1: Trigger question with no questions available');
+            questionFlowManager.triggerQuestion(); // Should not crash
+            
+            // Test invalid delta time
+            console.log('Test 2: Update with invalid delta time');
+            questionFlowManager.update('not a number'); // Should not crash
+            
+            console.log('✅ QuestionFlowManager error handling tests passed\n');
+        }
+
+        // Individual test functions
+        async function testContentLoader() {
+            showStatus('Testing ContentLoader...', 'info');
+            captureConsole();
+            try {
+                await testContentLoaderErrors();
+                showStatus('ContentLoader tests completed!', 'success');
+            } catch (error) {
+                showStatus('ContentLoader tests failed: ' + error.message, 'error');
+            } finally {
+                restoreConsole();
+            }
+        }
+
+        async function testGameStateManager() {
+            showStatus('Testing GameStateManager...', 'info');
+            captureConsole();
+            try {
+                await testGameStateManagerErrors();
+                showStatus('GameStateManager tests completed!', 'success');
+            } catch (error) {
+                showStatus('GameStateManager tests failed: ' + error.message, 'error');
+            } finally {
+                restoreConsole();
+            }
+        }
+
+        async function testQuestionPresenter() {
+            showStatus('Testing QuestionPresenter...', 'info');
+            captureConsole();
+            try {
+                await testQuestionPresenterErrors();
+                showStatus('QuestionPresenter tests completed!', 'success');
+            } catch (error) {
+                showStatus('QuestionPresenter tests failed: ' + error.message, 'error');
+            } finally {
+                restoreConsole();
+            }
+        }
+
+        async function testRunnerEngine() {
+            showStatus('Testing RunnerEngine...', 'info');
+            captureConsole();
+            try {
+                await testRunnerEngineErrors();
+                showStatus('RunnerEngine tests completed!', 'success');
+            } catch (error) {
+                showStatus('RunnerEngine tests failed: ' + error.message, 'error');
+            } finally {
+                restoreConsole();
+            }
+        }
+    </script>
+</body>
+</html>

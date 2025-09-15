@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Game Integration Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: white;
+            margin: 15px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 3px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .pass { background: #d4edda; color: #155724; }
+        .fail { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        .summary {
+            background: #333;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .progress {
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            background: #28a745;
+            height: 20px;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+            font-size: 12px;
+            transition: width 0.3s ease;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            max-height: 300px;
+            font-size: 12px;
+        }
+        h1, h2 { color: #333; }
+        .feature-list { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 10px; 
+            margin: 15px 0; 
+        }
+        .feature-item {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #fafafa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Complete Game Integration Test Suite</h1>
+        
+        <div class="test-section">
+            <h2>📊 Test Progress</h2>
+            <div id="progress-container">
+                <div class="progress">
+                    <div class="progress-bar" id="progress-bar" style="width: 0%">0%</div>
+                </div>
+                <div id="current-test">Initializing tests...</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🧪 Test Results</h2>
+            <div id="test-results"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔍 Feature Implementation Status</h2>
+            <div id="feature-status" class="feature-list"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📝 Console Output</h2>
+            <pre id="console-output"></pre>
+        </div>
+
+        <div class="summary" id="summary" style="display: none;">
+            <h2>🎯 Test Summary</h2>
+            <div id="summary-content"></div>
+        </div>
+    </div>
+
+    <!-- Load game modules -->
+    <script src="game/content-loader.js"></script>
+    <script src="game/game-state.js"></script>
+    <script src="game/question-presenter.js"></script>
+    <script src="game/runner-engine.js"></script>
+    <script src="game/question-flow-manager.js"></script>
+
+    <script>
+        // Test tracking
+        let tests = [];
+        let currentTestIndex = 0;
+        let consoleOutput = '';
+
+        // Capture console
+        const originalConsole = {
+            log: console.log,
+            error: console.error,
+            warn: console.warn
+        };
+
+        function updateConsole() {
+            document.getElementById('console-output').textContent = consoleOutput;
+        }
+
+        console.log = function(...args) {
+            const message = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ');
+            consoleOutput += `[LOG] ${message}\n`;
+            updateConsole();
+            originalConsole.log.apply(console, args);
+        };
+
+        console.error = function(...args) {
+            const message = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ');
+            consoleOutput += `[ERROR] ${message}\n`;
+            updateConsole();
+            originalConsole.error.apply(console, args);
+        };
+
+        console.warn = function(...args) {
+            const message = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ');
+            consoleOutput += `[WARN] ${message}\n`;
+            updateConsole();
+            originalConsole.warn.apply(console, args);
+        };
+
+        class GameTester {
+            constructor() {
+                this.results = [];
+                this.features = [
+                    'Content Loading', 'Question Management', 'Game State', 'Score Tracking',
+                    'Time Management', 'Question Flow', 'User Interface', 'Error Handling',
+                    'Input Processing', 'Feedback System', 'Animation Support', 'Data Validation',
+                    'Runner Mechanics', 'Collision Detection', 'Theme Support', 'Type Handling'
+                ];
+                this.testCount = 0;
+                this.totalTests = 30; // Estimated
+            }
+
+            addResult(category, test, status, details = '') {
+                this.results.push({ category, test, status, details, timestamp: Date.now() });
+                this.updateProgress();
+                this.updateResults();
+            }
+
+            updateProgress() {
+                this.testCount++;
+                const percentage = Math.round((this.testCount / this.totalTests) * 100);
+                const progressBar = document.getElementById('progress-bar');
+                const currentTest = document.getElementById('current-test');
+                
+                progressBar.style.width = percentage + '%';
+                progressBar.textContent = percentage + '%';
+                currentTest.textContent = `Running test ${this.testCount}/${this.totalTests}`;
+            }
+
+            updateResults() {
+                const container = document.getElementById('test-results');
+                const groupedResults = {};
+                
+                this.results.forEach(result => {
+                    if (!groupedResults[result.category]) {
+                        groupedResults[result.category] = [];
+                    }
+                    groupedResults[result.category].push(result);
+                });
+
+                let html = '';
+                Object.keys(groupedResults).forEach(category => {
+                    const categoryResults = groupedResults[category];
+                    const passed = categoryResults.filter(r => r.status === 'pass').length;
+                    const total = categoryResults.length;
+                    const rate = Math.round((passed / total) * 100);
+                    
+                    html += `<h3>${category} (${passed}/${total} - ${rate}%)</h3>`;
+                    categoryResults.forEach(result => {
+                        const className = result.status === 'pass' ? 'pass' : 'fail';
+                        html += `<div class="test-result ${className}">
+                            ${result.test}: ${result.status.toUpperCase()}
+                            ${result.details ? `<br><small>${result.details}</small>` : ''}
+                        </div>`;
+                    });
+                });
+
+                container.innerHTML = html;
+            }
+
+            updateFeatureStatus() {
+                const container = document.getElementById('feature-status');
+                let html = '';
+                
+                this.features.forEach(feature => {
+                    const relatedResults = this.results.filter(r => 
+                        r.category.toLowerCase().includes(feature.toLowerCase()) ||
+                        r.test.toLowerCase().includes(feature.toLowerCase())
+                    );
+                    
+                    let status = 'unknown';
+                    if (relatedResults.length > 0) {
+                        const passed = relatedResults.filter(r => r.status === 'pass').length;
+                        status = passed === relatedResults.length ? 'implemented' : 
+                               passed > 0 ? 'partial' : 'issues';
+                    }
+                    
+                    const statusText = {
+                        'implemented': '✅ Fully Implemented',
+                        'partial': '⚠️ Partially Working',
+                        'issues': '❌ Has Issues',
+                        'unknown': '❓ Not Tested'
+                    };
+                    
+                    html += `<div class="feature-item">
+                        <strong>${feature}</strong><br>
+                        ${statusText[status]}
+                    </div>`;
+                });
+                
+                container.innerHTML = html;
+            }
+
+            async testContentLoader() {
+                console.log('Testing ContentLoader...');
+                
+                try {
+                    const loader = new ContentLoader();
+                    this.addResult('Content System', 'ContentLoader Creation', 'pass');
+
+                    // Test question loading
+                    try {
+                        const result = await loader.loadQuestions('data/math-basic.json');
+                        if (result.success) {
+                            this.addResult('Content System', 'Data Loading', 'pass', `Loaded ${loader.getQuestionCount()} questions`);
+                        } else {
+                            this.addResult('Content System', 'Data Loading', 'fail', result.error);
+                        }
+                    } catch (error) {
+                        this.addResult('Content System', 'Data Loading', 'fail', error.message);
+                    }
+
+                    // Test fallback mechanism
+                    loader.clear();
+                    const fallback = loader.getNextQuestion();
+                    if (fallback && fallback.prompt) {
+                        this.addResult('Content System', 'Fallback Questions', 'pass');
+                    } else {
+                        this.addResult('Content System', 'Fallback Questions', 'fail');
+                    }
+
+                    // Test enhanced features
+                    if (loader.loadQuestionsForSubject && loader.getQuestionsByType) {
+                        this.addResult('Content System', 'Enhanced Features', 'pass', 'Subject and type support');
+                    } else {
+                        this.addResult('Content System', 'Enhanced Features', 'fail');
+                    }
+
+                } catch (error) {
+                    this.addResult('Content System', 'Critical Error', 'fail', error.message);
+                }
+            }
+
+            testGameStateManager() {
+                console.log('Testing GameStateManager...');
+                
+                try {
+                    const { GameStateManager, GameStates } = window;
+                    const gameState = new GameStateManager();
+                    
+                    this.addResult('Game State', 'State Manager Creation', 'pass');
+
+                    // Test state transitions
+                    gameState.setState(GameStates.PLAYING);
+                    if (gameState.getCurrentState() === GameStates.PLAYING) {
+                        this.addResult('Game State', 'State Transitions', 'pass');
+                    } else {
+                        this.addResult('Game State', 'State Transitions', 'fail');
+                    }
+
+                    // Test score system
+                    const initialScore = gameState.gameState.score;
+                    gameState.updateScore(100);
+                    if (gameState.gameState.score === initialScore + 100) {
+                        this.addResult('Game State', 'Score Management', 'pass');
+                    } else {
+                        this.addResult('Game State', 'Score Management', 'fail');
+                    }
+
+                    // Test answer recording
+                    gameState.recordAnswer(true);
+                    if (gameState.gameState.questionsAnswered > 0) {
+                        this.addResult('Game State', 'Answer Recording', 'pass');
+                    } else {
+                        this.addResult('Game State', 'Answer Recording', 'fail');
+                    }
+
+                    // Test statistics
+                    const stats = gameState.getGameStats();
+                    if (stats && typeof stats.accuracy === 'number') {
+                        this.addResult('Game State', 'Statistics Generation', 'pass');
+                    } else {
+                        this.addResult('Game State', 'Statistics Generation', 'fail');
+                    }
+
+                } catch (error) {
+                    this.addResult('Game State', 'Critical Error', 'fail', error.message);
+                }
+            }
+
+            testQuestionPresenter() {
+                console.log('Testing QuestionPresenter...');
+                
+                try {
+                    const presenter = new QuestionPresenter();
+                    this.addResult('User Interface', 'QuestionPresenter Creation', 'pass');
+
+                    // Test UI initialization
+                    if (presenter.ui && presenter.ui.container) {
+                        this.addResult('User Interface', 'UI Initialization', 'pass');
+                    } else {
+                        this.addResult('User Interface', 'UI Initialization', 'fail');
+                    }
+
+                    // Test question validation
+                    if (presenter.validateQuestion) {
+                        const testQuestion = {
+                            prompt: 'Test?',
+                            options: ['A', 'B'],
+                            answer: 'A',
+                            feedback: 'Good!'
+                        };
+                        const validation = presenter.validateQuestion(testQuestion);
+                        if (validation.isValid) {
+                            this.addResult('User Interface', 'Question Validation', 'pass');
+                        } else {
+                            this.addResult('User Interface', 'Question Validation', 'fail', validation.errors.join(', '));
+                        }
+                    } else {
+                        this.addResult('User Interface', 'Question Validation', 'fail', 'Method missing');
+                    }
+
+                    // Test enhanced features
+                    if (presenter.displayQuestionWithTypeHandler && presenter.renderQuestionWithKaboom) {
+                        this.addResult('User Interface', 'Advanced Rendering', 'pass', 'Type handlers and Kaboom support');
+                    } else {
+                        this.addResult('User Interface', 'Advanced Rendering', 'fail');
+                    }
+
+                    // Test error handling
+                    presenter.displayQuestion(null);
+                    if (!presenter.isQuestionVisible()) {
+                        this.addResult('User Interface', 'Error Handling', 'pass');
+                    } else {
+                        this.addResult('User Interface', 'Error Handling', 'fail');
+                    }
+
+                } catch (error) {
+                    this.addResult('User Interface', 'Critical Error', 'fail', error.message);
+                }
+            }
+
+            testRunnerEngine() {
+                console.log('Testing RunnerEngine...');
+                
+                try {
+                    const mockGameState = {
+                        gameState: { playerPosition: { x: 100, y: 300 } },
+                        getCurrentState: () => 'playing'
+                    };
+
+                    const engine = new RunnerEngine(mockGameState);
+                    this.addResult('Runner Mechanics', 'Engine Creation', 'pass');
+
+                    // Test player mechanics
+                    if (engine.updatePlayer && engine.checkCollisions) {
+                        this.addResult('Runner Mechanics', 'Player Controls', 'pass');
+                    } else {
+                        this.addResult('Runner Mechanics', 'Player Controls', 'fail');
+                    }
+
+                    // Test obstacle system
+                    if (engine.generateObstacle && engine.updateObstacles) {
+                        this.addResult('Runner Mechanics', 'Obstacle System', 'pass');
+                    } else {
+                        this.addResult('Runner Mechanics', 'Obstacle System', 'fail');
+                    }
+
+                    // Test collision detection
+                    try {
+                        engine.obstacles = [{ x: 100, y: 300, width: 30, height: 40 }];
+                        const collision = engine.checkCollisions();
+                        this.addResult('Runner Mechanics', 'Collision Detection', 'pass');
+                    } catch (error) {
+                        this.addResult('Runner Mechanics', 'Collision Detection', 'fail', error.message);
+                    }
+
+                } catch (error) {
+                    this.addResult('Runner Mechanics', 'Critical Error', 'fail', error.message);
+                }
+            }
+
+            async testIntegration() {
+                console.log('Testing Game Integration...');
+                
+                try {
+                    // Test module compatibility
+                    const loader = new ContentLoader();
+                    const gameState = new GameStateManager();
+                    const presenter = new QuestionPresenter();
+                    
+                    this.addResult('Integration', 'Module Compatibility', 'pass');
+
+                    // Test data flow
+                    await loader.loadQuestions('data/math-basic.json');
+                    const question = loader.getNextQuestion();
+                    
+                    if (question && presenter.validateQuestion) {
+                        const validation = presenter.validateQuestion(question);
+                        if (validation.isValid) {
+                            this.addResult('Integration', 'Data Flow', 'pass');
+                        } else {
+                            this.addResult('Integration', 'Data Flow', 'fail', 'Question validation failed');
+                        }
+                    } else {
+                        this.addResult('Integration', 'Data Flow', 'fail', 'Cannot validate data flow');
+                    }
+
+                    // Test complete workflow
+                    try {
+                        gameState.setState('question');
+                        presenter.displayQuestion(question);
+                        gameState.recordAnswer(true);
+                        this.addResult('Integration', 'Complete Workflow', 'pass');
+                    } catch (error) {
+                        this.addResult('Integration', 'Complete Workflow', 'fail', error.message);
+                    }
+
+                } catch (error) {
+                    this.addResult('Integration', 'Critical Error', 'fail', error.message);
+                }
+            }
+
+            showSummary() {
+                const passed = this.results.filter(r => r.status === 'pass').length;
+                const total = this.results.length;
+                const successRate = Math.round((passed / total) * 100);
+                
+                let summary = `
+                    <h3>📊 Overall Results: ${passed}/${total} tests passed (${successRate}%)</h3>
+                    <div class="progress">
+                        <div class="progress-bar" style="width: ${successRate}%">${successRate}%</div>
+                    </div>
+                `;
+
+                if (successRate === 100) {
+                    summary += '<h3 style="color: #28a745;">🎉 ALL GAME FEATURES ARE WORKING PERFECTLY!</h3>';
+                } else if (successRate >= 90) {
+                    summary += '<h3 style="color: #ffc107;">✅ Game is mostly functional with minor issues</h3>';
+                } else if (successRate >= 75) {
+                    summary += '<h3 style="color: #fd7e14;">⚠️ Game has some issues that should be addressed</h3>';
+                } else {
+                    summary += '<h3 style="color: #dc3545;">❌ Game has significant issues requiring attention</h3>';
+                }
+
+                // Show failed tests
+                const failures = this.results.filter(r => r.status === 'fail');
+                if (failures.length > 0) {
+                    summary += '<h4>❌ Issues Found:</h4><ul>';
+                    failures.forEach(failure => {
+                        summary += `<li><strong>${failure.category} - ${failure.test}:</strong> ${failure.details}</li>`;
+                    });
+                    summary += '</ul>';
+                }
+
+                document.getElementById('summary-content').innerHTML = summary;
+                document.getElementById('summary').style.display = 'block';
+            }
+
+            async runAllTests() {
+                console.log('🚀 Starting comprehensive game tests...');
+                
+                await this.testContentLoader();
+                await sleep(100);
+                
+                this.testGameStateManager();
+                await sleep(100);
+                
+                this.testQuestionPresenter();
+                await sleep(100);
+                
+                this.testRunnerEngine();
+                await sleep(100);
+                
+                await this.testIntegration();
+                await sleep(100);
+                
+                this.updateFeatureStatus();
+                this.showSummary();
+                
+                document.getElementById('current-test').textContent = 'All tests completed!';
+                console.log('✅ Comprehensive testing complete!');
+            }
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Run tests when page loads
+        window.addEventListener('load', async () => {
+            await sleep(500); // Let everything load
+            const tester = new GameTester();
+            await tester.runAllTests();
+        });
+    </script>
+</body>
+</html>

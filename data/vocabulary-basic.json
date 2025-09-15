@@ -1,0 +1,67 @@
+{
+  "questions": [
+    {
+      "id": "vocab_001",
+      "type": "multiple_choice",
+      "prompt": "What does the word 'enormous' mean?",
+      "options": ["Very small", "Very large", "Very fast", "Very slow"],
+      "answer": "Very large",
+      "feedback": "Correct! 'Enormous' means extremely large or huge in size or extent.",
+      "difficulty": 2,
+      "subject": "vocabulary",
+      "topic": "adjectives"
+    },
+    {
+      "id": "vocab_002",
+      "type": "fill_blank",
+      "prompt": "A person who writes books is called an _____.",
+      "answer": "author",
+      "feedback": "Perfect! An author is someone who writes books, articles, or other written works.",
+      "difficulty": 1,
+      "subject": "vocabulary",
+      "topic": "professions"
+    },
+    {
+      "id": "vocab_003",
+      "type": "multiple_choice",
+      "prompt": "Which word is a synonym for 'happy'?",
+      "options": ["Sad", "Joyful", "Angry", "Tired"],
+      "answer": "Joyful",
+      "feedback": "Excellent! 'Joyful' is a synonym for 'happy' - both words express positive emotions.",
+      "difficulty": 2,
+      "subject": "vocabulary",
+      "topic": "synonyms"
+    },
+    {
+      "id": "vocab_004",
+      "type": "true_false",
+      "prompt": "The word 'transparent' means you can see through something.",
+      "answer": "True",
+      "feedback": "Correct! Transparent means allowing light to pass through so that objects behind can be clearly seen.",
+      "difficulty": 2,
+      "subject": "vocabulary",
+      "topic": "adjectives"
+    },
+    {
+      "id": "vocab_005",
+      "type": "matching",
+      "prompt": "Match the word to its opposite:",
+      "pairs": [
+        {"left": "Hot", "right": "Cold"},
+        {"left": "Big", "right": "Small"},
+        {"left": "Fast", "right": "Slow"}
+      ],
+      "answer": "Hot-Cold,Big-Small,Fast-Slow",
+      "feedback": "Great work! Understanding antonyms (opposite words) helps expand your vocabulary.",
+      "difficulty": 1,
+      "subject": "vocabulary",
+      "topic": "antonyms"
+    }
+  ],
+  "metadata": {
+    "title": "Basic Vocabulary Building",
+    "description": "Essential vocabulary words and concepts for language development",
+    "version": "1.0",
+    "author": "Educational Team"
+  }
+}

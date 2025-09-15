@@ -1,0 +1,70 @@
+{
+  "questions": [
+    {
+      "id": "geo_001",
+      "type": "multiple_choice",
+      "prompt": "What is the largest continent?",
+      "options": ["Africa", "Asia", "North America", "Europe"],
+      "answer": "Asia",
+      "feedback": "Correct! Asia is the largest continent, covering about 30% of Earth's total land area.",
+      "difficulty": 1,
+      "subject": "geography",
+      "topic": "continents"
+    },
+    {
+      "id": "geo_002",
+      "type": "multiple_choice",
+      "prompt": "Which river is the longest in the world?",
+      "options": ["Amazon River", "Nile River", "Mississippi River", "Yangtze River"],
+      "answer": "Nile River",
+      "feedback": "Excellent! The Nile River in Africa is traditionally considered the longest river in the world at about 4,135 miles.",
+      "difficulty": 2,
+      "subject": "geography",
+      "topic": "rivers"
+    },
+    {
+      "id": "geo_003",
+      "type": "true_false",
+      "prompt": "Australia is both a country and a continent.",
+      "answer": "True",
+      "feedback": "Correct! Australia is unique in being both a country and a continent.",
+      "difficulty": 2,
+      "subject": "geography",
+      "topic": "continents"
+    },
+    {
+      "id": "geo_004",
+      "type": "multiple_choice",
+      "prompt": "What is the capital of Canada?",
+      "options": ["Toronto", "Vancouver", "Ottawa", "Montreal"],
+      "answer": "Ottawa",
+      "feedback": "Perfect! Ottawa is the capital city of Canada, located in the province of Ontario.",
+      "difficulty": 2,
+      "subject": "geography",
+      "topic": "capitals"
+    },
+    {
+      "id": "geo_005",
+      "type": "matching",
+      "prompt": "Match the country to its capital:",
+      "pairs": [
+        {"left": "France", "right": "Paris"},
+        {"left": "Japan", "right": "Tokyo"},
+        {"left": "Brazil", "right": "Brasília"}
+      ],
+      "answer": "France-Paris,Japan-Tokyo,Brazil-Brasília",
+      "feedback": "Great job! Learning world capitals helps you understand global geography and cultures.",
+      "difficulty": 3,
+      "subject": "geography",
+      "topic": "capitals"
+    }
+  ],
+  "metadata": {
+    "title": "Geography Explorer",
+    "description": "Discover countries, capitals, continents, and physical features",
+    "version": "1.0",
+    "author": "Educational Team",
+    "grade_level": "3-5",
+    "estimated_time": "8-12 minutes"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "id": "math_001",
+      "type": "multiple_choice",
+      "prompt": "What is 2 + 2?",
+      "options": ["3", "4", "5"],
+      "answer": "4",
+      "feedback": "Correct! 2 + 2 equals 4. This is basic addition.",
+      "difficulty": 1,
+      "subject": "math",
+      "topic": "addition"
+    },
+    {
+      "id": "math_002",
+      "type": "multiple_choice",
+      "prompt": "What is 5 × 3?",
+      "options": ["15", "10", "20"],
+      "answer": "15",
+      "feedback": "Great! 5 × 3 = 15. Remember, multiplication is repeated addition.",
+      "difficulty": 1,
+      "subject": "math",
+      "topic": "multiplication"
+    },
+    {
+      "id": "math_003",
+      "type": "multiple_choice",
+      "prompt": "What is 10 ÷ 2?",
+      "options": ["2", "5", "10"],
+      "answer": "5",
+      "feedback": "Excellent! 10 ÷ 2 = 5. Division is the opposite of multiplication.",
+      "difficulty": 1,
+      "subject": "math",
+      "topic": "division"
+    },
+    {
+      "id": "math_004",
+      "type": "multiple_choice",
+      "prompt": "What is 8 - 3?",
+      "options": ["5", "6", "4"],
+      "answer": "5",
+      "feedback": "Perfect! 8 - 3 = 5. Subtraction means taking away.",
+      "difficulty": 1,
+      "subject": "math",
+      "topic": "subtraction"
+    }
+  ],
+  "metadata": {
+    "title": "Basic Math Practice",
+    "description": "Fundamental arithmetic operations for elementary students",
+    "version": "1.0",
+    "author": "Educational Team"
+  }
+}

@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no" />
+    <title>Performance Optimization Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        
+        .test-pass {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .test-fail {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .performance-stats {
+            background: #e2e3e5;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        #game-container {
+            border: 2px solid #333;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 20px 0;
+            max-width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Performance Optimization Test</h1>
+        
+        <div class="test-section">
+            <h2>Device Detection</h2>
+            <div id="device-info"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Canvas Responsiveness</h2>
+            <div id="canvas-info"></div>
+            <button onclick="testCanvasResize()">Test Canvas Resize</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>Performance Monitoring</h2>
+            <div id="performance-info"></div>
+            <button onclick="startPerformanceTest()">Start Performance Test</button>
+            <button onclick="simulateLowPerformance()">Simulate Low Performance</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>Memory Management</h2>
+            <div id="memory-info"></div>
+            <button onclick="testMemoryManagement()">Test Memory Management</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>Browser Compatibility</h2>
+            <div id="browser-info"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Game Performance Test</h2>
+            <div id="game-container">
+                <!-- Game will be loaded here -->
+            </div>
+            <button onclick="loadGame()">Load Game</button>
+            <div id="game-performance"></div>
+        </div>
+    </div>
+
+    <!-- Load Kaboom.js -->
+    <script src="https://unpkg.com/kaboom@3000/dist/kaboom.js"></script>
+    
+    <!-- Load game modules -->
+    <script src="game/content-loader.js" defer></script>
+    <script src="game/game-state.js" defer></script>
+    <script src="game/runner-engine.js" defer></script>
+    <script src="game/question-presenter.js" defer></script>
+    <script src="game/question-flow-manager.js" defer></script>
+    
+    <script>
+        let performanceMonitor, canvasManager, memoryManager;
+        let gameLoaded = false;
+        
+        // Performance Monitor Class (simplified version for testing)
+        class PerformanceMonitor {
+            constructor() {
+                this.frameCount = 0;
+                this.lastTime = performance.now();
+                this.fps = 60;
+                this.memoryUsage = 0;
+                this.performanceHistory = [];
+                this.maxHistoryLength = 100;
+                this.lowPerformanceThreshold = 30;
+                this.isLowPerformance = false;
+                this.particleEffectsEnabled = true;
+                this.backgroundAnimationsEnabled = true;
+                this.qualityLevel = 'high';
+            }
+            
+            update() {
+                this.frameCount++;
+                const currentTime = performance.now();
+                const deltaTime = currentTime - this.lastTime;
+                
+                if (deltaTime >= 1000) {
+                    this.fps = Math.round((this.frameCount * 1000) / deltaTime);
+                    this.frameCount = 0;
+                    this.lastTime = currentTime;
+                    
+                    if (performance.memory) {
+                        this.memoryUsage = Math.round(performance.memory.usedJSHeapSize / 1024 / 1024);
+                    }
+                    
+                    this.performanceHistory.push({
+                        fps: this.fps,
+                        memory: this.memoryUsage,
+                        timestamp: currentTime
+                    });
+                    
+                    if (this.performanceHistory.length > this.maxHistoryLength) {
+                        this.performanceHistory.shift();
+                    }
+                    
+                    this.checkPerformance();
+                }
+            }
+            
+            checkPerformance() {
+                const recentFrames = this.performanceHistory.slice(-10);
+                const avgFps = recentFrames.reduce((sum, frame) => sum + frame.fps, 0) / recentFrames.length;
+                
+                if (avgFps < this.lowPerformanceThreshold && !this.isLowPerformance) {
+                    this.isLowPerformance = true;
+                    this.adjustPerformance();
+                } else if (avgFps > this.lowPerformanceThreshold + 10 && this.isLowPerformance) {
+                    this.isLowPerformance = false;
+                }
+            }
+            
+            adjustPerformance() {
+                if (this.qualityLevel === 'high') {
+                    this.qualityLevel = 'medium';
+                    this.particleEffectsEnabled = false;
+                } else if (this.qualityLevel === 'medium') {
+                    this.qualityLevel = 'low';
+                    this.backgroundAnimationsEnabled = false;
+                }
+            }
+            
+            getFPS() { return this.fps; }
+            getMemoryUsage() { return this.memoryUsage; }
+            getQualityLevel() { return this.qualityLevel; }
+            shouldUseParticleEffects() { return this.particleEffectsEnabled; }
+            shouldUseBackgroundAnimations() { return this.backgroundAnimationsEnabled; }
+        }
+        
+        // Responsive Canvas Manager Class
+        class ResponsiveCanvasManager {
+            constructor() {
+                this.baseWidth = 800;
+                this.baseHeight = 600;
+                this.aspectRatio = this.baseWidth / this.baseHeight;
+                this.scaleFactor = 1;
+                this.isMobile = this.detectMobile();
+                this.isLandscape = window.innerWidth > window.innerHeight;
+            }
+            
+            detectMobile() {
+                return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                       (navigator.maxTouchPoints && navigator.maxTouchPoints > 2);
+            }
+            
+            calculateOptimalSize() {
+                const windowWidth = window.innerWidth;
+                const windowHeight = window.innerHeight;
+                const windowAspectRatio = windowWidth / windowHeight;
+                
+                let canvasWidth, canvasHeight;
+                
+                if (this.isMobile) {
+                    const maxMobileWidth = Math.min(windowWidth * 0.95, 600);
+                    const maxMobileHeight = Math.min(windowHeight * 0.85, 450);
+                    
+                    if (windowAspectRatio > this.aspectRatio) {
+                        canvasHeight = maxMobileHeight;
+                        canvasWidth = canvasHeight * this.aspectRatio;
+                    } else {
+                        canvasWidth = maxMobileWidth;
+                        canvasHeight = canvasWidth / this.aspectRatio;
+                    }
+                } else {
+                    const maxDesktopWidth = Math.min(windowWidth * 0.9, 1200);
+                    const maxDesktopHeight = Math.min(windowHeight * 0.9, 900);
+                    
+                    if (windowAspectRatio > this.aspectRatio) {
+                        canvasHeight = Math.min(maxDesktopHeight, this.baseHeight * 1.5);
+                        canvasWidth = canvasHeight * this.aspectRatio;
+                    } else {
+                        canvasWidth = Math.min(maxDesktopWidth, this.baseWidth * 1.5);
+                        canvasHeight = canvasWidth / this.aspectRatio;
+                    }
+                }
+                
+                this.scaleFactor = canvasWidth / this.baseWidth;
+                
+                return {
+                    width: Math.round(canvasWidth),
+                    height: Math.round(canvasHeight),
+                    scaleFactor: this.scaleFactor
+                };
+            }
+            
+            getOptimalSize() { return this.calculateOptimalSize(); }
+            isMobileDevice() { return this.isMobile; }
+            isLandscapeMode() { return this.isLandscape; }
+        }
+        
+        // Initialize test components
+        document.addEventListener('DOMContentLoaded', () => {
+            performanceMonitor = new PerformanceMonitor();
+            canvasManager = new ResponsiveCanvasManager();
+            window.performanceMonitor = performanceMonitor;
+            
+            runInitialTests();
+            startPerformanceMonitoring();
+        });
+        
+        function runInitialTests() {
+            testDeviceDetection();
+            testCanvasResponsiveness();
+            testBrowserCompatibility();
+        }
+        
+        function testDeviceDetection() {
+            const deviceInfo = document.getElementById('device-info');
+            const isMobile = canvasManager.isMobileDevice();
+            const isLandscape = canvasManager.isLandscapeMode();
+            
+            deviceInfo.innerHTML = `
+                <div class="test-result test-pass">
+                    <strong>Device Type:</strong> ${isMobile ? 'Mobile' : 'Desktop'}<br>
+                    <strong>Orientation:</strong> ${isLandscape ? 'Landscape' : 'Portrait'}<br>
+                    <strong>Screen Size:</strong> ${window.innerWidth}x${window.innerHeight}<br>
+                    <strong>Touch Support:</strong> ${navigator.maxTouchPoints > 0 ? 'Yes' : 'No'}
+                </div>
+            `;
+        }
+        
+        function testCanvasResponsiveness() {
+            const canvasInfo = document.getElementById('canvas-info');
+            const optimalSize = canvasManager.getOptimalSize();
+            
+            canvasInfo.innerHTML = `
+                <div class="test-result test-pass">
+                    <strong>Optimal Canvas Size:</strong> ${optimalSize.width}x${optimalSize.height}<br>
+                    <strong>Scale Factor:</strong> ${optimalSize.scaleFactor.toFixed(2)}<br>
+                    <strong>Base Size:</strong> 800x600<br>
+                    <strong>Aspect Ratio:</strong> ${(optimalSize.width / optimalSize.height).toFixed(2)}
+                </div>
+            `;
+        }
+        
+        function testCanvasResize() {
+            // Simulate window resize
+            window.dispatchEvent(new Event('resize'));
+            testCanvasResponsiveness();
+        }
+        
+        function startPerformanceMonitoring() {
+            setInterval(() => {
+                performanceMonitor.update();
+                updatePerformanceDisplay();
+            }, 100);
+        }
+        
+        function updatePerformanceDisplay() {
+            const performanceInfo = document.getElementById('performance-info');
+            const fps = performanceMonitor.getFPS();
+            const memory = performanceMonitor.getMemoryUsage();
+            const quality = performanceMonitor.getQualityLevel();
+            
+            const performanceClass = fps > 45 ? 'test-pass' : fps > 25 ? 'test-result' : 'test-fail';
+            
+            performanceInfo.innerHTML = `
+                <div class="performance-stats">
+                    <strong>Current FPS:</strong> ${fps}<br>
+                    <strong>Memory Usage:</strong> ${memory}MB<br>
+                    <strong>Quality Level:</strong> ${quality}<br>
+                    <strong>Particle Effects:</strong> ${performanceMonitor.shouldUseParticleEffects() ? 'Enabled' : 'Disabled'}<br>
+                    <strong>Background Animations:</strong> ${performanceMonitor.shouldUseBackgroundAnimations() ? 'Enabled' : 'Disabled'}
+                </div>
+            `;
+        }
+        
+        function startPerformanceTest() {
+            // Simulate heavy load
+            let counter = 0;
+            const heavyLoad = setInterval(() => {
+                // Create artificial load
+                for (let i = 0; i < 100000; i++) {
+                    Math.random() * Math.random();
+                }
+                counter++;
+                if (counter > 50) {
+                    clearInterval(heavyLoad);
+                }
+            }, 10);
+        }
+        
+        function simulateLowPerformance() {
+            // Force low performance mode
+            performanceMonitor.isLowPerformance = true;
+            performanceMonitor.adjustPerformance();
+            updatePerformanceDisplay();
+        }
+        
+        function testMemoryManagement() {
+            const memoryInfo = document.getElementById('memory-info');
+            
+            if (performance.memory) {
+                const memory = performance.memory;
+                memoryInfo.innerHTML = `
+                    <div class="test-result test-pass">
+                        <strong>Used JS Heap:</strong> ${(memory.usedJSHeapSize / 1024 / 1024).toFixed(2)}MB<br>
+                        <strong>Total JS Heap:</strong> ${(memory.totalJSHeapSize / 1024 / 1024).toFixed(2)}MB<br>
+                        <strong>JS Heap Limit:</strong> ${(memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2)}MB<br>
+                        <strong>Memory Pressure:</strong> ${(memory.usedJSHeapSize / memory.jsHeapSizeLimit * 100).toFixed(1)}%
+                    </div>
+                `;
+            } else {
+                memoryInfo.innerHTML = `
+                    <div class="test-result test-fail">
+                        Memory API not available in this browser
+                    </div>
+                `;
+            }
+        }
+        
+        function testBrowserCompatibility() {
+            const browserInfo = document.getElementById('browser-info');
+            const features = {
+                'Canvas API': !!document.createElement('canvas').getContext,
+                'WebGL': !!document.createElement('canvas').getContext('webgl'),
+                'Touch Events': 'ontouchstart' in window,
+                'Performance API': !!window.performance,
+                'Memory API': !!performance.memory,
+                'Visibility API': !!document.visibilityState,
+                'RequestAnimationFrame': !!window.requestAnimationFrame,
+                'Local Storage': !!window.localStorage,
+                'Fetch API': !!window.fetch
+            };
+            
+            let html = '';
+            for (const [feature, supported] of Object.entries(features)) {
+                const className = supported ? 'test-pass' : 'test-fail';
+                html += `<div class="${className}"><strong>${feature}:</strong> ${supported ? 'Supported' : 'Not Supported'}</div>`;
+            }
+            
+            browserInfo.innerHTML = html;
+        }
+        
+        function loadGame() {
+            if (gameLoaded) return;
+            
+            try {
+                // Initialize game with performance monitoring
+                const optimalSize = canvasManager.getOptimalSize();
+                
+                kaboom({
+                    background: [135, 206, 235],
+                    width: optimalSize.width,
+                    height: optimalSize.height,
+                    canvas: document.querySelector('#game-container canvas') || undefined,
+                    crisp: true,
+                    touchToMouse: canvasManager.isMobileDevice(),
+                    logMax: 10,
+                    root: document.querySelector('#game-container'),
+                });
+                
+                // Simple test scene
+                add([
+                    text("Performance Test Scene", { size: 24 }),
+                    pos(width() / 2, 50),
+                    origin("center"),
+                    color(0, 0, 0),
+                ]);
+                
+                add([
+                    text("Game loaded successfully!", { size: 16 }),
+                    pos(width() / 2, 100),
+                    origin("center"),
+                    color(0, 100, 0),
+                ]);
+                
+                // Performance display
+                const perfDisplay = add([
+                    text("", { size: 12 }),
+                    pos(10, height() - 30),
+                    color(100, 100, 100),
+                ]);
+                
+                onUpdate(() => {
+                    perfDisplay.text = `FPS: ${performanceMonitor.getFPS()} | Quality: ${performanceMonitor.getQualityLevel()}`;
+                });
+                
+                gameLoaded = true;
+                
+                document.getElementById('game-performance').innerHTML = `
+                    <div class="test-result test-pass">
+                        Game loaded successfully with performance monitoring enabled!
+                    </div>
+                `;
+                
+            } catch (error) {
+                document.getElementById('game-performance').innerHTML = `
+                    <div class="test-result test-fail">
+                        Failed to load game: ${error.message}
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

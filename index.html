@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educational Runner Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .game-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        .game-header h1 {
+            font-size: 2.5em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .game-header p {
+            font-size: 1.2em;
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+        
+        #game-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .loading .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px;
+            text-align: center;
+            max-width: 500px;
+        }
+        
+        .error-message h3 {
+            margin-top: 0;
+        }
+        
+        .game-info {
+            color: white;
+            text-align: center;
+            margin-top: 20px;
+            opacity: 0.8;
+        }
+        
+        .game-info ul {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0;
+        }
+        
+        .game-info li {
+            margin: 5px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .game-header h1 {
+                font-size: 2em;
+            }
+            
+            .game-header p {
+                font-size: 1em;
+            }
+            
+            #game-container {
+                margin: 0 10px;
+                max-width: 95vw;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-header">
+        <h1>🎮 Educational Runner Game</h1>
+        <p>Learn while you run! Answer questions to keep going!</p>
+    </div>
+    
+    <div id="game-container">
+        <div class="loading">
+            <div class="spinner"></div>
+            <p>Loading game...</p>
+            <p><small>Please wait while we initialize the educational content</small></p>
+        </div>
+    </div>
+    
+    <div class="game-info">
+        <h3>How to Play:</h3>
+        <ul>
+            <li>🏃 Press SPACE or tap to start</li>
+            <li>⬆️ Press UP ARROW or tap to jump</li>
+            <li>📚 Answer questions correctly to continue</li>
+            <li>💝 Collect points for correct answers</li>
+            <li>❤️ You have 3 lives - don't hit obstacles!</li>
+            <li>📱 On mobile: Tap to jump and answer</li>
+        </ul>
+    </div>
+
+    <!-- Kaboom.js CDN -->
+    <script src="https://unpkg.com/kaboom@3000/dist/kaboom.js"></script>
+    
+    <!-- Game modules (order matters for dependencies) -->
+    <script src="game/subject-config.js"></script>
+    <script src="game/question-type-handler.js"></script>
+    <script src="game/content-loader.js"></script>
+    <script src="game/game-state.js"></script>
+    <script src="game/question-presenter.js"></script>
+    <script src="game/runner-engine.js"></script>
+    <script src="game/question-flow-manager.js"></script>
+    
+    <!-- Main game script -->
+    <script src="main.js"></script>
+    
+    <!-- Error handling for missing dependencies -->
+    <script>
+        // Check if all dependencies loaded successfully
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const missing = [];
+                if (typeof kaboom === 'undefined') missing.push('Kaboom.js game engine');
+                if (typeof ContentLoader === 'undefined') missing.push('ContentLoader');
+                if (typeof GameStateManager === 'undefined') missing.push('GameStateManager');
+                if (typeof SubjectConfigManager === 'undefined') missing.push('SubjectConfigManager');
+                if (typeof QuestionTypeHandler === 'undefined') missing.push('QuestionTypeHandler');
+                if (typeof QuestionPresenter === 'undefined') missing.push('QuestionPresenter');
+                if (typeof RunnerEngine === 'undefined') missing.push('RunnerEngine');
+                if (typeof QuestionFlowManager === 'undefined') missing.push('QuestionFlowManager');
+                
+                if (missing.length > 0) {
+                    showError(`Failed to load: ${missing.join(', ')}. Please refresh the page.`);
+                }
+            }, 3000);
+        });
+        
+        function showError(message) {
+            const gameContainer = document.getElementById('game-container');
+            gameContainer.innerHTML = `
+                <div class="error-message">
+                    <h3>⚠️ Game Loading Error</h3>
+                    <p>${message}</p>
+                    <button onclick="location.reload()" style="
+                        padding: 10px 20px;
+                        background: #dc3545;
+                        color: white;
+                        border: none;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        font-size: 16px;
+                        margin-top: 10px;
+                    ">Try Again</button>
+                </div>
+            `;
+        }
+        
+        // Handle uncaught errors gracefully
+        window.addEventListener('error', (event) => {
+            console.error('Game error:', event.error);
+            if (event.error && event.error.message && event.error.message.includes('kaboom')) {
+                showError('Game engine failed to initialize. Please refresh the page.');
+            }
+        });
+    </script>
+</body>
+</html>

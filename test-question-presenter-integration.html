@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question Presenter Integration Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f0f0;
+        }
+        .test-controls {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-controls h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        .test-controls button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .test-controls button:hover {
+            background: #0056b3;
+        }
+        .test-controls button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .log-entry {
+            margin: 2px 0;
+            padding: 2px 0;
+        }
+        .log-entry.success {
+            color: #28a745;
+        }
+        .log-entry.error {
+            color: #dc3545;
+        }
+        .log-entry.info {
+            color: #17a2b8;
+        }
+    </style>
+</head>
+<body>
+    <h1>Question Presenter Integration Test</h1>
+    
+    <div class="test-controls">
+        <h2>Test Controls</h2>
+        <button id="showQuestionBtn">Show Sample Question</button>
+        <button id="showMathQuestionBtn">Show Math Question</button>
+        <button id="showScienceQuestionBtn">Show Science Question</button>
+        <button id="hideQuestionBtn">Hide Question</button>
+        <button id="clearLogBtn">Clear Log</button>
+        
+        <div class="status">
+            <strong>Status:</strong> <span id="status">Ready</span><br>
+            <strong>Question Visible:</strong> <span id="questionVisible">No</span><br>
+            <strong>Waiting for Answer:</strong> <span id="waitingForAnswer">No</span>
+        </div>
+    </div>
+
+    <div class="test-controls">
+        <h2>Test Results</h2>
+        <div id="testLog" class="log">
+            <div class="log-entry info">Question Presenter Integration Test initialized</div>
+        </div>
+    </div>
+
+    <script src="game/question-presenter.js"></script>
+    <script>
+        // Test setup
+        let questionPresenter;
+        let testLog = document.getElementById('testLog');
+        let statusElement = document.getElementById('status');
+        let questionVisibleElement = document.getElementById('questionVisible');
+        let waitingForAnswerElement = document.getElementById('waitingForAnswer');
+
+        // Sample questions for testing
+        const sampleQuestions = {
+            basic: {
+                prompt: 'What is 2 + 2?',
+                options: ['3', '4', '5', '6'],
+                answer: '4',
+                feedback: 'Correct! 2 + 2 equals 4.'
+            },
+            math: {
+                prompt: 'What is 15 ÷ 3?',
+                options: ['4', '5', '6', '7'],
+                answer: '5',
+                feedback: 'Great! 15 divided by 3 equals 5.'
+            },
+            science: {
+                prompt: 'What planet is closest to the Sun?',
+                options: ['Venus', 'Mercury', 'Earth', 'Mars'],
+                answer: 'Mercury',
+                feedback: 'Excellent! Mercury is the closest planet to the Sun.'
+            }
+        };
+
+        // Logging functions
+        function log(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            testLog.appendChild(entry);
+            testLog.scrollTop = testLog.scrollHeight;
+        }
+
+        function updateStatus() {
+            if (questionPresenter) {
+                questionVisibleElement.textContent = questionPresenter.isQuestionVisible() ? 'Yes' : 'No';
+                waitingForAnswerElement.textContent = questionPresenter.isWaitingForAnswer ? 'Yes' : 'No';
+            }
+        }
+
+        // Initialize question presenter
+        function initializeQuestionPresenter() {
+            try {
+                questionPresenter = new QuestionPresenter();
+                
+                // Add event listeners
+                questionPresenter.addAnswerListener((result) => {
+                    log(`Answer selected: ${result.selectedAnswer} (${result.isCorrect ? 'CORRECT' : 'INCORRECT'})`, 
+                        result.isCorrect ? 'success' : 'error');
+                    log(`Feedback: ${result.feedback}`, 'info');
+                    updateStatus();
+                });
+
+                questionPresenter.addFeedbackCompleteListener(() => {
+                    log('Feedback complete - question hidden', 'info');
+                    statusElement.textContent = 'Ready';
+                    updateStatus();
+                });
+
+                log('Question Presenter initialized successfully', 'success');
+                statusElement.textContent = 'Initialized';
+                updateStatus();
+                
+            } catch (error) {
+                log(`Error initializing Question Presenter: ${error.message}`, 'error');
+                statusElement.textContent = 'Error';
+            }
+        }
+
+        // Event handlers
+        document.getElementById('showQuestionBtn').addEventListener('click', () => {
+            if (questionPresenter) {
+                questionPresenter.displayQuestion(sampleQuestions.basic);
+                log('Displaying basic math question', 'info');
+                statusElement.textContent = 'Question Displayed';
+                updateStatus();
+            }
+        });
+
+        document.getElementById('showMathQuestionBtn').addEventListener('click', () => {
+            if (questionPresenter) {
+                questionPresenter.displayQuestion(sampleQuestions.math);
+                log('Displaying math division question', 'info');
+                statusElement.textContent = 'Question Displayed';
+                updateStatus();
+            }
+        });
+
+        document.getElementById('showScienceQuestionBtn').addEventListener('click', () => {
+            if (questionPresenter) {
+                questionPresenter.displayQuestion(sampleQuestions.science);
+                log('Displaying science question', 'info');
+                statusElement.textContent = 'Question Displayed';
+                updateStatus();
+            }
+        });
+
+        document.getElementById('hideQuestionBtn').addEventListener('click', () => {
+            if (questionPresenter) {
+                questionPresenter.hideQuestion();
+                log('Question hidden manually', 'info');
+                statusElement.textContent = 'Ready';
+                updateStatus();
+            }
+        });
+
+        document.getElementById('clearLogBtn').addEventListener('click', () => {
+            testLog.innerHTML = '<div class="log-entry info">Log cleared</div>';
+        });
+
+        // Keyboard event logging
+        document.addEventListener('keydown', (event) => {
+            if (questionPresenter && questionPresenter.isQuestionVisible()) {
+                log(`Key pressed: ${event.key}`, 'info');
+            }
+        });
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeQuestionPresenter();
+            
+            // Run some automated tests
+            setTimeout(() => {
+                log('Running automated tests...', 'info');
+                
+                // Test 1: Display and hide question
+                questionPresenter.displayQuestion(sampleQuestions.basic);
+                log('Test 1: Question displayed', 'success');
+                
+                setTimeout(() => {
+                    questionPresenter.hideQuestion();
+                    log('Test 1: Question hidden', 'success');
+                    
+                    // Test 2: Answer selection
+                    setTimeout(() => {
+                        questionPresenter.displayQuestion(sampleQuestions.math);
+                        log('Test 2: Math question displayed', 'success');
+                        
+                        setTimeout(() => {
+                            questionPresenter.handleAnswerSelection('5');
+                            log('Test 2: Correct answer selected programmatically', 'success');
+                        }, 1000);
+                    }, 1000);
+                }, 2000);
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

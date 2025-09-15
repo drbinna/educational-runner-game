@@ -1,0 +1,67 @@
+{
+  "questions": [
+    {
+      "id": "science_001",
+      "type": "multiple_choice",
+      "prompt": "What is the largest planet in our solar system?",
+      "options": ["Earth", "Jupiter", "Saturn", "Mars"],
+      "answer": "Jupiter",
+      "feedback": "Correct! Jupiter is the largest planet in our solar system, with a mass greater than all other planets combined.",
+      "difficulty": 2,
+      "subject": "science",
+      "topic": "astronomy"
+    },
+    {
+      "id": "science_002",
+      "type": "true_false",
+      "prompt": "Water boils at 100 degrees Celsius at sea level.",
+      "answer": "True",
+      "feedback": "Correct! Water boils at 100°C (212°F) at sea level atmospheric pressure.",
+      "difficulty": 1,
+      "subject": "science",
+      "topic": "chemistry"
+    },
+    {
+      "id": "science_003",
+      "type": "multiple_choice",
+      "prompt": "Which gas do plants absorb from the atmosphere during photosynthesis?",
+      "options": ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"],
+      "answer": "Carbon Dioxide",
+      "feedback": "Excellent! Plants absorb carbon dioxide from the atmosphere and convert it into glucose using sunlight energy.",
+      "difficulty": 2,
+      "subject": "science",
+      "topic": "biology"
+    },
+    {
+      "id": "science_004",
+      "type": "fill_blank",
+      "prompt": "The force that pulls objects toward Earth is called _____.",
+      "answer": "gravity",
+      "feedback": "Perfect! Gravity is the force that attracts objects with mass toward each other, keeping us on Earth's surface.",
+      "difficulty": 1,
+      "subject": "science",
+      "topic": "physics"
+    },
+    {
+      "id": "science_005",
+      "type": "matching",
+      "prompt": "Match the animal to its habitat:",
+      "pairs": [
+        {"left": "Fish", "right": "Water"},
+        {"left": "Bird", "right": "Sky/Trees"},
+        {"left": "Mole", "right": "Underground"}
+      ],
+      "answer": "Fish-Water,Bird-Sky/Trees,Mole-Underground",
+      "feedback": "Great job! Animals are adapted to live in specific habitats that meet their survival needs.",
+      "difficulty": 2,
+      "subject": "science",
+      "topic": "biology"
+    }
+  ],
+  "metadata": {
+    "title": "Basic Science Concepts",
+    "description": "Fundamental science concepts covering astronomy, chemistry, biology, and physics",
+    "version": "1.0",
+    "author": "Educational Team"
+  }
+}

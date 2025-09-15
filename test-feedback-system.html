@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback and Penalty System Test</title>
+    <script src="https://unpkg.com/kaboom@3000/dist/kaboom.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .test-controls {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 2000;
+        }
+        .test-controls button {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .correct-btn { background-color: #28a745; color: white; }
+        .incorrect-btn { background-color: #dc3545; color: white; }
+        .stumble-btn { background-color: #ffc107; color: black; }
+        .success-btn { background-color: #17a2b8; color: white; }
+        #game-canvas {
+            border: 2px solid #333;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Feedback and Penalty System Test</h1>
+    <p>Use the controls on the right to test different feedback scenarios.</p>
+    
+    <div class="test-controls">
+        <h3>Test Controls</h3>
+        <button class="correct-btn" onclick="testCorrectAnswer()">Test Correct Answer</button>
+        <button class="incorrect-btn" onclick="testIncorrectAnswer()">Test Incorrect Answer</button>
+        <button class="stumble-btn" onclick="testStumbleEffect()">Test Stumble Effect</button>
+        <button class="success-btn" onclick="testSuccessEffect()">Test Success Effect</button>
+    </div>
+
+    <!-- Load game modules -->
+    <script src="game/content-loader.js"></script>
+    <script src="game/game-state.js"></script>
+    <script src="game/runner-engine.js"></script>
+    <script src="game/question-presenter.js"></script>
+
+    <script>
+        // Initialize Kaboom.js
+        kaboom({
+            background: [135, 206, 235],
+            width: 800,
+            height: 600,
+            canvas: document.getElementById('game-canvas')
+        });
+
+        // Initialize game components
+        const gameStateManager = new GameStateManager();
+        const runnerEngine = new RunnerEngine(gameStateManager);
+        const questionPresenter = new QuestionPresenter();
+
+        // Test question data
+        const testQuestion = {
+            id: "test_001",
+            type: "multiple_choice",
+            prompt: "What is 2 + 2?",
+            options: ["3", "4", "5"],
+            answer: "4",
+            feedback: "Correct! 2 + 2 equals 4. This demonstrates the feedback system working properly with educational content from JSON data.",
+            difficulty: 1,
+            subject: "math",
+            topic: "addition"
+        };
+
+        const testQuestionIncorrect = {
+            id: "test_002",
+            type: "multiple_choice",
+            prompt: "What is 5 × 3?",
+            options: ["12", "15", "18"],
+            answer: "15",
+            feedback: "The correct answer is 15. Remember, 5 × 3 means adding 5 three times: 5 + 5 + 5 = 15. This shows how educational feedback helps learning.",
+            difficulty: 1,
+            subject: "math",
+            topic: "multiplication"
+        };
+
+        // Set up game state
+        gameStateManager.setState(GameStates.PLAYING);
+
+        // Set up answer listener to test feedback system
+        questionPresenter.addAnswerListener((result) => {
+            console.log('Answer result:', result);
+            gameStateManager.recordAnswer(result.isCorrect);
+            
+            if (result.isCorrect) {
+                console.log('Creating success effect...');
+                runnerEngine.createSuccessEffect();
+            } else {
+                console.log('Creating stumble effect...');
+                runnerEngine.stumble(1500);
+            }
+            
+            const stats = gameStateManager.getGameStats();
+            console.log('Game stats:', stats);
+            console.log('Performance feedback:', gameStateManager.getPerformanceFeedback());
+        });
+
+        // Test functions
+        function testCorrectAnswer() {
+            console.log('Testing correct answer feedback...');
+            questionPresenter.displayQuestion(testQuestion);
+            
+            // Auto-select correct answer after a short delay
+            setTimeout(() => {
+                questionPresenter.handleAnswerSelection("4");
+            }, 1000);
+        }
+
+        function testIncorrectAnswer() {
+            console.log('Testing incorrect answer feedback...');
+            questionPresenter.displayQuestion(testQuestionIncorrect);
+            
+            // Auto-select incorrect answer after a short delay
+            setTimeout(() => {
+                questionPresenter.handleAnswerSelection("12");
+            }, 1000);
+        }
+
+        function testStumbleEffect() {
+            console.log('Testing stumble effect...');
+            runnerEngine.stumble(2000);
+        }
+
+        function testSuccessEffect() {
+            console.log('Testing success effect...');
+            runnerEngine.createSuccessEffect();
+        }
+
+        // Game loop for testing
+        onUpdate(() => {
+            const deltaTime = dt();
+            runnerEngine.updatePlayer(deltaTime);
+            runnerEngine.updateBackground(deltaTime);
+        });
+
+        // Add some visual feedback in the console
+        console.log('Feedback and Penalty System Test initialized!');
+        console.log('Use the buttons on the right to test different scenarios.');
+        console.log('Watch the console for detailed feedback information.');
+    </script>
+</body>
+</html>

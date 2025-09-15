@@ -1,0 +1,95 @@
+{
+  "timestamp": "2025-09-15T00:28:49.331Z",
+  "totalTime": 8729,
+  "results": {
+    "total": 7,
+    "passed": 0,
+    "failed": 7,
+    "skipped": 0,
+    "suites": [
+      {
+        "name": "Unit Tests - ContentLoader",
+        "file": "content-loader.test.js",
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "time": 1606,
+        "errors": [
+          "Command failed: npx jest /Users/drbinna/Documents/edu-game-demo/test/content-loader.test.js --verbose --no-coverage\n● Multiple configurations found:\n\n    * /Users/drbinna/Documents/edu-game-demo/jest.config.js\n    * `jest` key in /Users/drbinna/Documents/edu-game-demo/package.json\n\n  Implicit config resolution does not allow multiple configuration files.\n  Either remove unused config files or select one explicitly with `--config`.\n\n  Configuration Documentation:\n  https://jestjs.io/docs/configuration\n\n"
+        ]
+      },
+      {
+        "name": "Unit Tests - GameStateManager",
+        "file": "game-state.test.js",
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "time": 1233,
+        "errors": [
+          "Command failed: npx jest /Users/drbinna/Documents/edu-game-demo/test/game-state.test.js --verbose --no-coverage\n● Multiple configurations found:\n\n    * /Users/drbinna/Documents/edu-game-demo/jest.config.js\n    * `jest` key in /Users/drbinna/Documents/edu-game-demo/package.json\n\n  Implicit config resolution does not allow multiple configuration files.\n  Either remove unused config files or select one explicitly with `--config`.\n\n  Configuration Documentation:\n  https://jestjs.io/docs/configuration\n\n"
+        ]
+      },
+      {
+        "name": "Unit Tests - QuestionPresenter",
+        "file": "question-presenter.test.js",
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "time": 1280,
+        "errors": [
+          "Command failed: npx jest /Users/drbinna/Documents/edu-game-demo/test/question-presenter.test.js --verbose --no-coverage\n● Multiple configurations found:\n\n    * /Users/drbinna/Documents/edu-game-demo/jest.config.js\n    * `jest` key in /Users/drbinna/Documents/edu-game-demo/package.json\n\n  Implicit config resolution does not allow multiple configuration files.\n  Either remove unused config files or select one explicitly with `--config`.\n\n  Configuration Documentation:\n  https://jestjs.io/docs/configuration\n\n"
+        ]
+      },
+      {
+        "name": "Unit Tests - RunnerEngine",
+        "file": "runner-mechanics.test.js",
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "time": 1154,
+        "errors": [
+          "Command failed: npx jest /Users/drbinna/Documents/edu-game-demo/test/runner-mechanics.test.js --verbose --no-coverage\n● Multiple configurations found:\n\n    * /Users/drbinna/Documents/edu-game-demo/jest.config.js\n    * `jest` key in /Users/drbinna/Documents/edu-game-demo/package.json\n\n  Implicit config resolution does not allow multiple configuration files.\n  Either remove unused config files or select one explicitly with `--config`.\n\n  Configuration Documentation:\n  https://jestjs.io/docs/configuration\n\n"
+        ]
+      },
+      {
+        "name": "Integration Tests",
+        "file": "integration.test.js",
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "time": 1204,
+        "errors": [
+          "Command failed: npx jest /Users/drbinna/Documents/edu-game-demo/test/integration.test.js --verbose --no-coverage\n● Multiple configurations found:\n\n    * /Users/drbinna/Documents/edu-game-demo/jest.config.js\n    * `jest` key in /Users/drbinna/Documents/edu-game-demo/package.json\n\n  Implicit config resolution does not allow multiple configuration files.\n  Either remove unused config files or select one explicitly with `--config`.\n\n  Configuration Documentation:\n  https://jestjs.io/docs/configuration\n\n"
+        ]
+      },
+      {
+        "name": "Performance Tests",
+        "file": "performance.test.js",
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "time": 1101,
+        "errors": [
+          "Command failed: npx jest /Users/drbinna/Documents/edu-game-demo/test/performance.test.js --verbose --no-coverage\n● Multiple configurations found:\n\n    * /Users/drbinna/Documents/edu-game-demo/jest.config.js\n    * `jest` key in /Users/drbinna/Documents/edu-game-demo/package.json\n\n  Implicit config resolution does not allow multiple configuration files.\n  Either remove unused config files or select one explicitly with `--config`.\n\n  Configuration Documentation:\n  https://jestjs.io/docs/configuration\n\n"
+        ]
+      },
+      {
+        "name": "Browser Compatibility Tests",
+        "file": "browser-compatibility.test.js",
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "time": 1148,
+        "errors": [
+          "Command failed: npx jest /Users/drbinna/Documents/edu-game-demo/test/browser-compatibility.test.js --verbose --no-coverage\n● Multiple configurations found:\n\n    * /Users/drbinna/Documents/edu-game-demo/jest.config.js\n    * `jest` key in /Users/drbinna/Documents/edu-game-demo/package.json\n\n  Implicit config resolution does not allow multiple configuration files.\n  Either remove unused config files or select one explicitly with `--config`.\n\n  Configuration Documentation:\n  https://jestjs.io/docs/configuration\n\n"
+        ]
+      }
+    ]
+  },
+  "summary": {
+    "totalTests": 7,
+    "successRate": 0,
+    "failureRate": 100,
+    "coverage": "See coverage report for detailed metrics"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "questions": [
+    {
+      "id": "hist_001",
+      "type": "multiple_choice",
+      "prompt": "Who was the first President of the United States?",
+      "options": ["Thomas Jefferson", "George Washington", "John Adams", "Benjamin Franklin"],
+      "answer": "George Washington",
+      "feedback": "Correct! George Washington served as the first President of the United States from 1789 to 1797.",
+      "difficulty": 1,
+      "subject": "history",
+      "topic": "american_history"
+    },
+    {
+      "id": "hist_002",
+      "type": "multiple_choice",
+      "prompt": "In which year did World War II end?",
+      "options": ["1944", "1945", "1946", "1947"],
+      "answer": "1945",
+      "feedback": "Excellent! World War II ended in 1945 with the surrender of Japan in September.",
+      "difficulty": 2,
+      "subject": "history",
+      "topic": "world_history"
+    },
+    {
+      "id": "hist_003",
+      "type": "true_false",
+      "prompt": "The Great Wall of China was built in a single dynasty.",
+      "answer": "False",
+      "feedback": "Correct! The Great Wall was built and rebuilt by multiple dynasties over many centuries, not just one dynasty.",
+      "difficulty": 3,
+      "subject": "history",
+      "topic": "world_history"
+    },
+    {
+      "id": "hist_004",
+      "type": "multiple_choice",
+      "prompt": "Which ancient civilization built the pyramids?",
+      "options": ["Greeks", "Romans", "Egyptians", "Babylonians"],
+      "answer": "Egyptians",
+      "feedback": "Perfect! The ancient Egyptians built the famous pyramids, including the Great Pyramid of Giza.",
+      "difficulty": 1,
+      "subject": "history",
+      "topic": "ancient_history"
+    },
+    {
+      "id": "hist_005",
+      "type": "fill_blank",
+      "prompt": "The _____ Revolution began in 1775 when American colonists fought for independence.",
+      "answer": "American",
+      "feedback": "Correct! The American Revolution (1775-1783) was when the American colonies fought for independence from British rule.",
+      "difficulty": 2,
+      "subject": "history",
+      "topic": "american_history"
+    }
+  ],
+  "metadata": {
+    "title": "History Highlights",
+    "description": "Important events and figures from world and American history",
+    "version": "1.0",
+    "author": "Educational Team",
+    "grade_level": "4-6",
+    "estimated_time": "10-15 minutes"
+  }
+}

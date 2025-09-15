@@ -1,0 +1,70 @@
+{
+  "questions": [
+    {
+      "id": "animal_001",
+      "type": "multiple_choice",
+      "prompt": "Which animal is a mammal?",
+      "options": ["Eagle", "Shark", "Dolphin", "Lizard"],
+      "answer": "Dolphin",
+      "feedback": "Correct! Dolphins are mammals because they are warm-blooded, have hair (though minimal), and feed milk to their babies.",
+      "difficulty": 2,
+      "subject": "science",
+      "topic": "animals"
+    },
+    {
+      "id": "animal_002",
+      "type": "multiple_choice",
+      "prompt": "What do herbivores eat?",
+      "options": ["Only meat", "Only plants", "Both plants and meat", "Only insects"],
+      "answer": "Only plants",
+      "feedback": "Excellent! Herbivores are animals that eat only plants. Examples include rabbits, deer, and elephants.",
+      "difficulty": 1,
+      "subject": "science",
+      "topic": "animals"
+    },
+    {
+      "id": "animal_003",
+      "type": "true_false",
+      "prompt": "All birds can fly.",
+      "answer": "False",
+      "feedback": "Correct! Not all birds can fly. Penguins, ostriches, and emus are examples of flightless birds.",
+      "difficulty": 2,
+      "subject": "science",
+      "topic": "animals"
+    },
+    {
+      "id": "animal_004",
+      "type": "multiple_choice",
+      "prompt": "Which animal undergoes metamorphosis?",
+      "options": ["Dog", "Butterfly", "Fish", "Bird"],
+      "answer": "Butterfly",
+      "feedback": "Perfect! Butterflies undergo complete metamorphosis: egg → larva (caterpillar) → pupa (chrysalis) → adult butterfly.",
+      "difficulty": 3,
+      "subject": "science",
+      "topic": "animals"
+    },
+    {
+      "id": "animal_005",
+      "type": "matching",
+      "prompt": "Match the animal to its classification:",
+      "pairs": [
+        {"left": "Frog", "right": "Amphibian"},
+        {"left": "Snake", "right": "Reptile"},
+        {"left": "Whale", "right": "Mammal"}
+      ],
+      "answer": "Frog-Amphibian,Snake-Reptile,Whale-Mammal",
+      "feedback": "Great work! Understanding animal classifications helps us learn about their characteristics and habitats.",
+      "difficulty": 2,
+      "subject": "science",
+      "topic": "animals"
+    }
+  ],
+  "metadata": {
+    "title": "Animal Kingdom Explorer",
+    "description": "Learn about different animals, their classifications, and characteristics",
+    "version": "1.0",
+    "author": "Educational Team",
+    "grade_level": "2-4",
+    "estimated_time": "8-12 minutes"
+  }
+}
