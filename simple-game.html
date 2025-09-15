@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educational Runner Game - Simple Version</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .game-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        .game-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 90%;
+        }
+        
+        .error-message {
+            background: #ffebee;
+            border: 1px solid #f44336;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        
+        .success-message {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        
+        button {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        .question-container {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 5px;
+        }
+        
+        .answer-button {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+            text-align: left;
+            background: #2196f3;
+        }
+        
+        .answer-button:hover {
+            background: #1976d2;
+        }
+        
+        .correct {
+            background: #4caf50 !important;
+        }
+        
+        .incorrect {
+            background: #f44336 !important;
+        }
+        
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-header">
+        <h1>🏃‍♂️📚 Educational Runner Game</h1>
+        <p>Learn while you run! Answer questions to keep going!</p>
+    </div>
+    
+    <div class="game-container">
+        <div id="game-content">
+            <div class="success-message">
+                ✅ Simple version loaded successfully! This version works without external dependencies.
+            </div>
+            
+            <div class="game-stats">
+                <span>Score: <span id="score">0</span></span>
+                <span>Lives: <span id="lives">3</span></span>
+                <span>Questions: <span id="questions-answered">0</span></span>
+            </div>
+            
+            <div id="menu-screen">
+                <h2>Ready to Start Learning?</h2>
+                <p>This educational runner game will test your knowledge while you play!</p>
+                <button onclick="startGame()">🚀 Start Game</button>
+            </div>
+            
+            <div id="game-screen" style="display: none;">
+                <div id="runner-display">
+                    <p>🏃‍♂️ Running... Get ready for a question!</p>
+                    <div style="background: #e3f2fd; padding: 10px; border-radius: 5px; margin: 10px 0;">
+                        <strong>Game Status:</strong> <span id="game-status">Running</span>
+                    </div>
+                </div>
+                
+                <div id="question-display" style="display: none;">
+                    <!-- Questions will appear here -->
+                </div>
+            </div>
+            
+            <div id="game-over-screen" style="display: none;">
+                <h2>🎯 Game Over!</h2>
+                <p>Great job learning! Here are your final stats:</p>
+                <div id="final-stats"></div>
+                <button onclick="restartGame()">🔄 Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kaboom.js CDN -->
+    <script src="https://unpkg.com/kaboom@3000/dist/kaboom.js"></script>
+    
+    <script>
+        // Simple Educational Runner Game - All-in-one version
+        
+        // Game state
+        let gameState = {
+            score: 0,
+            lives: 3,
+            questionsAnswered: 0,
+            correctAnswers: 0,
+            currentQuestion: null,
+            isPlaying: false,
+            questionIndex: 0
+        };
+        
+        // Built-in questions (no external files needed)
+        const questions = [
+            {
+                id: "q1",
+                prompt: "What is 2 + 2?",
+                options: ["3", "4", "5", "6"],
+                answer: "4",
+                feedback: "Correct! 2 + 2 equals 4."
+            },
+            {
+                id: "q2", 
+                prompt: "What color do you get when you mix red and blue?",
+                options: ["Green", "Purple", "Yellow", "Orange"],
+                answer: "Purple",
+                feedback: "Correct! Red and blue make purple."
+            },
+            {
+                id: "q3",
+                prompt: "How many days are in a week?",
+                options: ["5", "6", "7", "8"],
+                answer: "7",
+                feedback: "Correct! There are 7 days in a week."
+            },
+            {
+                id: "q4",
+                prompt: "What is the opposite of 'hot'?",
+                options: ["Warm", "Cool", "Cold", "Freezing"],
+                answer: "Cold",
+                feedback: "Correct! Cold is the opposite of hot."
+            },
+            {
+                id: "q5",
+                prompt: "What is 10 - 5?",
+                options: ["3", "4", "5", "6"],
+                answer: "5",
+                feedback: "Correct! 10 - 5 equals 5."
+            },
+            {
+                id: "q6",
+                prompt: "Which animal says 'moo'?",
+                options: ["Dog", "Cat", "Cow", "Bird"],
+                answer: "Cow",
+                feedback: "Correct! Cows say 'moo'."
+            },
+            {
+                id: "q7",
+                prompt: "What is 3 × 3?",
+                options: ["6", "9", "12", "15"],
+                answer: "9",
+                feedback: "Correct! 3 × 3 equals 9."
+            },
+            {
+                id: "q8",
+                prompt: "What do plants need to grow?",
+                options: ["Only water", "Only sunlight", "Water and sunlight", "Nothing"],
+                answer: "Water and sunlight",
+                feedback: "Correct! Plants need both water and sunlight to grow."
+            }
+        ];
+        
+        // Game functions
+        function updateStats() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('lives').textContent = gameState.lives;
+            document.getElementById('questions-answered').textContent = gameState.questionsAnswered;
+        }
+        
+        function startGame() {
+            gameState.isPlaying = true;
+            gameState.score = 0;
+            gameState.lives = 3;
+            gameState.questionsAnswered = 0;
+            gameState.correctAnswers = 0;
+            gameState.questionIndex = 0;
+            
+            document.getElementById('menu-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+            document.getElementById('game-over-screen').style.display = 'none';
+            
+            updateStats();
+            
+            // Start the runner simulation
+            document.getElementById('game-status').textContent = 'Running...';
+            
+            // Show first question after a short delay
+            setTimeout(showQuestion, 2000);
+        }
+        
+        function showQuestion() {
+            if (!gameState.isPlaying) return;
+            
+            // Get next question
+            const question = questions[gameState.questionIndex % questions.length];
+            gameState.currentQuestion = question;
+            
+            document.getElementById('runner-display').style.display = 'none';
+            document.getElementById('question-display').style.display = 'block';
+            document.getElementById('game-status').textContent = 'Answer the question!';
+            
+            // Create question HTML
+            let questionHTML = `
+                <div class="question-container">
+                    <h3>Question ${gameState.questionsAnswered + 1}</h3>
+                    <p><strong>${question.prompt}</strong></p>
+                    <div id="answer-buttons">
+            `;
+            
+            question.options.forEach((option, index) => {
+                questionHTML += `
+                    <button class="answer-button" onclick="selectAnswer('${option}')">
+                        ${index + 1}. ${option}
+                    </button>
+                `;
+            });
+            
+            questionHTML += `
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('question-display').innerHTML = questionHTML;
+        }
+        
+        function selectAnswer(selectedAnswer) {
+            if (!gameState.currentQuestion) return;
+            
+            const isCorrect = selectedAnswer === gameState.currentQuestion.answer;
+            gameState.questionsAnswered++;
+            
+            // Update button colors
+            const buttons = document.querySelectorAll('.answer-button');
+            buttons.forEach(button => {
+                const buttonText = button.textContent.substring(3); // Remove "1. " prefix
+                if (buttonText === gameState.currentQuestion.answer) {
+                    button.className = 'answer-button correct';
+                } else if (buttonText === selectedAnswer && !isCorrect) {
+                    button.className = 'answer-button incorrect';
+                }
+                button.disabled = true;
+            });
+            
+            // Show feedback
+            const feedbackHTML = `
+                <div style="margin-top: 15px; padding: 10px; border-radius: 5px; background: ${isCorrect ? '#e8f5e8' : '#ffebee'};">
+                    <strong>${isCorrect ? '✅ Correct!' : '❌ Incorrect'}</strong><br>
+                    ${gameState.currentQuestion.feedback}
+                </div>
+            `;
+            
+            document.getElementById('question-display').innerHTML += feedbackHTML;
+            
+            // Update game state
+            if (isCorrect) {
+                gameState.score += 10;
+                gameState.correctAnswers++;
+            } else {
+                gameState.lives--;
+            }
+            
+            updateStats();
+            
+            // Check game over
+            if (gameState.lives <= 0) {
+                setTimeout(endGame, 2000);
+            } else {
+                // Continue to next question
+                gameState.questionIndex++;
+                setTimeout(continueRunning, 2000);
+            }
+        }
+        
+        function continueRunning() {
+            document.getElementById('question-display').style.display = 'none';
+            document.getElementById('runner-display').style.display = 'block';
+            document.getElementById('game-status').textContent = 'Running... Next question coming up!';
+            
+            // Show next question after delay
+            setTimeout(showQuestion, 3000);
+        }
+        
+        function endGame() {
+            gameState.isPlaying = false;
+            
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('game-over-screen').style.display = 'block';
+            
+            const accuracy = gameState.questionsAnswered > 0 ? 
+                Math.round((gameState.correctAnswers / gameState.questionsAnswered) * 100) : 0;
+            
+            document.getElementById('final-stats').innerHTML = `
+                <div class="game-stats" style="flex-direction: column; gap: 10px;">
+                    <div>Final Score: <strong>${gameState.score}</strong></div>
+                    <div>Questions Answered: <strong>${gameState.questionsAnswered}</strong></div>
+                    <div>Correct Answers: <strong>${gameState.correctAnswers}</strong></div>
+                    <div>Accuracy: <strong>${accuracy}%</strong></div>
+                </div>
+            `;
+        }
+        
+        function restartGame() {
+            document.getElementById('game-over-screen').style.display = 'none';
+            document.getElementById('menu-screen').style.display = 'block';
+        }
+        
+        // Initialize the game
+        console.log('✅ Simple Educational Runner Game loaded successfully!');
+        console.log(`📚 ${questions.length} questions available`);
+        
+        // Add keyboard support
+        document.addEventListener('keydown', (event) => {
+            if (gameState.isPlaying && gameState.currentQuestion) {
+                const key = event.key;
+                if (key >= '1' && key <= '4') {
+                    const optionIndex = parseInt(key) - 1;
+                    if (optionIndex < gameState.currentQuestion.options.length) {
+                        selectAnswer(gameState.currentQuestion.options[optionIndex]);
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

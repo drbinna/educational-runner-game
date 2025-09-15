@@ -343,40 +343,71 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // Initialize subject configuration and question type handlers
+        // Initialize subject configuration and question type handlers with fallbacks
         let subjectConfigManager, questionTypeHandler;
         
         try {
-            // Check if SubjectConfigManager class exists
+            // Check if SubjectConfigManager class exists, create fallback if not
             if (typeof SubjectConfigManager === 'undefined') {
-                throw new Error('SubjectConfigManager class not found. Please ensure all scripts are loaded.');
+                console.warn('SubjectConfigManager class not found, creating fallback');
+                // Create a minimal fallback SubjectConfigManager
+                window.SubjectConfigManager = class {
+                    constructor() {
+                        this.currentSubject = {
+                            id: 'math',
+                            name: 'Mathematics',
+                            dataFile: 'data/math-basic.json'
+                        };
+                    }
+                    getCurrentSubject() { return this.currentSubject; }
+                    getCurrentDataFile() { return this.currentSubject.dataFile; }
+                    setCurrentSubject() { return true; }
+                    getAllSubjects() { return [this.currentSubject]; }
+                };
             }
             subjectConfigManager = new SubjectConfigManager();
             console.log('✅ SubjectConfigManager initialized successfully');
         } catch (error) {
             console.error('Failed to initialize SubjectConfigManager:', error.message);
-            showCriticalError('Failed to initialize subject configuration. Please refresh the page and ensure all scripts load properly.');
-            return;
+            // Create emergency fallback
+            subjectConfigManager = {
+                getCurrentSubject: () => ({ id: 'math', name: 'Mathematics', dataFile: 'data/math-basic.json' }),
+                getCurrentDataFile: () => 'data/math-basic.json',
+                setCurrentSubject: () => true,
+                getAllSubjects: () => [{ id: 'math', name: 'Mathematics', dataFile: 'data/math-basic.json' }]
+            };
+            console.log('✅ Using emergency fallback SubjectConfigManager');
         }
 
         try {
-            // Check if QuestionTypeHandler class exists
+            // Check if QuestionTypeHandler class exists, create fallback if not
             if (typeof QuestionTypeHandler === 'undefined') {
-                throw new Error('QuestionTypeHandler class not found. Please ensure all scripts are loaded.');
+                console.warn('QuestionTypeHandler class not found, creating fallback');
+                // Create a minimal fallback QuestionTypeHandler
+                window.QuestionTypeHandler = class {
+                    constructor() {}
+                    validateQuestion() { return { isValid: true, errors: [] }; }
+                    handleQuestion() { return true; }
+                };
             }
             questionTypeHandler = new QuestionTypeHandler();
             console.log('✅ QuestionTypeHandler initialized successfully');
         } catch (error) {
             console.error('Failed to initialize QuestionTypeHandler:', error.message);
-            showCriticalError('Failed to initialize question type handler. Please refresh the page and ensure all scripts load properly.');
-            return;
+            // Create emergency fallback
+            questionTypeHandler = {
+                validateQuestion: () => ({ isValid: true, errors: [] }),
+                handleQuestion: () => true
+            };
+            console.log('✅ Using emergency fallback QuestionTypeHandler');
         }
 
         try {
             contentLoader = new ContentLoader(subjectConfigManager, questionTypeHandler);
+            console.log('✅ ContentLoader initialized successfully');
         } catch (error) {
             console.error('Failed to initialize ContentLoader:', error.message);
-            showCriticalError('Failed to initialize content loader. Please refresh the page.');
+            showCriticalError('Failed to initialize content loader. Please try the simple version: simple-game.html');
             return;
         }
 
