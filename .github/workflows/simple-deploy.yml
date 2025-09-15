@@ -1,0 +1,48 @@
+name: Simple Deploy (Backup)
+
+# This is a backup deployment workflow that can be used if the main workflow fails
+# To use this, disable the main deploy.yml and rename this file to deploy.yml
+
+on:
+  workflow_dispatch: # Manual trigger only
+  
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Validate required files
+      run: |
+        echo "Checking required files..."
+        test -f index.html && echo "✅ index.html found" || (echo "❌ index.html missing" && exit 1)
+        test -f main.js && echo "✅ main.js found" || (echo "❌ main.js missing" && exit 1)
+        test -f sw.js && echo "✅ sw.js found" || (echo "❌ sw.js missing" && exit 1)
+        test -d game && echo "✅ game/ directory found" || (echo "❌ game/ directory missing" && exit 1)
+        test -d data && echo "✅ data/ directory found" || (echo "❌ data/ directory missing" && exit 1)
+        echo "All required files present!"
+        
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./
+        exclude_assets: |
+          .github/**
+          test/**
+          scripts/**
+          node_modules/**
+          *.md
+          package*.json
+          jest.config.js
+          .gitignore
+          .lighthouserc.json
+        force_orphan: true
+        
+    - name: Deployment complete
+      run: |
+        echo "🎉 Deployment complete!"
+        echo "Your game should be available at:"
+        echo "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
