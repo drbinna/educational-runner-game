@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug GitHub Pages JSON Loading</title>
+</head>
+<body>
+    <h1>Debug GitHub Pages JSON Loading</h1>
+    <div id="results"></div>
+    
+    <script>
+        async function testJSONLoading() {
+            const results = document.getElementById('results');
+            
+            const testFiles = [
+                'data/math-basic.json',
+                './data/math-basic.json',
+                '/educational-runner-game/data/math-basic.json'
+            ];
+            
+            for (const file of testFiles) {
+                try {
+                    results.innerHTML += `<p>Testing: ${file}</p>`;
+                    const response = await fetch(file);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        results.innerHTML += `<p style="color: green;">✅ SUCCESS: ${file} - Found ${data.questions?.length || 0} questions</p>`;
+                    } else {
+                        results.innerHTML += `<p style="color: red;">❌ FAILED: ${file} - Status: ${response.status}</p>`;
+                    }
+                } catch (error) {
+                    results.innerHTML += `<p style="color: red;">❌ ERROR: ${file} - ${error.message}</p>`;
+                }
+            }
+        }
+        
+        testJSONLoading();
+    </script>
+</body>
+</html>

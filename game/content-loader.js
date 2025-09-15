@@ -58,7 +58,35 @@ class ContentLoader {
                 throw new Error('Invalid JSON path provided');
             }
 
-            const response = await fetch(jsonPath);
+            // Try multiple path variations for GitHub Pages compatibility
+            const pathVariations = [
+                jsonPath,
+                `./${jsonPath}`,
+                `/${window.location.pathname.split('/')[1]}/${jsonPath}` // For GitHub Pages subpath
+            ];
+            
+            let response = null;
+            let lastError = null;
+            
+            for (const path of pathVariations) {
+                try {
+                    console.log(`Attempting to load: ${path}`);
+                    response = await fetch(path);
+                    if (response.ok) {
+                        console.log(`Successfully fetched from: ${path}`);
+                        break;
+                    } else {
+                        console.log(`Failed to fetch from ${path}: ${response.status}`);
+                        lastError = new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                } catch (fetchError) {
+                    console.log(`Error fetching from ${path}:`, fetchError.message);
+                    lastError = fetchError;
+                }
+            }
+            
+            if (!response || !response.ok) {
+                throw lastError || new Error('All path variations failed');
             
             // Handle network errors
             if (!response.ok) {
@@ -108,6 +136,14 @@ class ContentLoader {
         } catch (error) {
             const errorMessage = error.message || 'Unknown error occurred while loading questions';
             console.error('Error loading questions:', errorMessage);
+            
+            // Try to load fallback questions
+            console.log('Attempting to load fallback questions...');
+            const fallbackResult = this.loadFallbackQuestions();
+            if (fallbackResult.success) {
+                console.log('Successfully loaded fallback questions');
+                return fallbackResult;
+            }
             
             // Reset state on error
             this.questions = [];
@@ -594,6 +630,91 @@ class ContentLoader {
         this.questions = [];
         this.metadata = {};
         this.currentQuestionIndex = 0;
+    }
+
+    /**
+     * Load fallback questions when JSON files can't be loaded
+     * @returns {{success: boolean, error?: string}} - Result with success status
+     */
+    loadFallbackQuestions() {
+        try {
+            console.log('Loading fallback questions...');
+            
+            // Basic fallback questions that work without external files
+            this.questions = [
+                {
+                    id: "fallback_001",
+                    type: "multiple_choice",
+                    prompt: "What is 2 + 2?",
+                    options: ["3", "4", "5", "6"],
+                    answer: "4",
+                    feedback: "Correct! 2 + 2 equals 4. This is basic addition.",
+                    difficulty: 1,
+                    subject: "math",
+                    topic: "addition"
+                },
+                {
+                    id: "fallback_002",
+                    type: "multiple_choice",
+                    prompt: "What color do you get when you mix red and blue?",
+                    options: ["Green", "Purple", "Yellow", "Orange"],
+                    answer: "Purple",
+                    feedback: "Correct! Red and blue make purple when mixed together.",
+                    difficulty: 1,
+                    subject: "science",
+                    topic: "colors"
+                },
+                {
+                    id: "fallback_003",
+                    type: "multiple_choice",
+                    prompt: "How many days are in a week?",
+                    options: ["5", "6", "7", "8"],
+                    answer: "7",
+                    feedback: "Correct! There are 7 days in a week: Monday through Sunday.",
+                    difficulty: 1,
+                    subject: "general",
+                    topic: "time"
+                },
+                {
+                    id: "fallback_004",
+                    type: "multiple_choice",
+                    prompt: "What is the opposite of 'hot'?",
+                    options: ["Warm", "Cool", "Cold", "Freezing"],
+                    answer: "Cold",
+                    feedback: "Correct! Cold is the opposite of hot.",
+                    difficulty: 1,
+                    subject: "vocabulary",
+                    topic: "opposites"
+                },
+                {
+                    id: "fallback_005",
+                    type: "multiple_choice",
+                    prompt: "What is 10 - 5?",
+                    options: ["3", "4", "5", "6"],
+                    answer: "5",
+                    feedback: "Correct! 10 - 5 equals 5. This is basic subtraction.",
+                    difficulty: 1,
+                    subject: "math",
+                    topic: "subtraction"
+                }
+            ];
+            
+            this.metadata = {
+                title: "Fallback Questions",
+                description: "Basic questions loaded when external files are unavailable",
+                version: "1.0",
+                author: "Educational Runner Game"
+            };
+            
+            this.currentQuestionIndex = 0;
+            
+            console.log(`Loaded ${this.questions.length} fallback questions`);
+            return { success: true };
+            
+        } catch (error) {
+            console.error('Error loading fallback questions:', error.message);
+            return { success: false, error: error.message };
+        }
     }
 }
 
