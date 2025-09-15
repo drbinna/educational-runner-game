@@ -1,0 +1,66 @@
+{
+  "questions": [
+    {
+      "id": "frac_001",
+      "type": "multiple_choice",
+      "prompt": "Which fraction is equivalent to 1/2?",
+      "options": ["2/4", "1/3", "3/5", "1/4"],
+      "answer": "2/4",
+      "feedback": "Correct! 2/4 equals 1/2 because both the numerator and denominator are multiplied by 2.",
+      "difficulty": 2,
+      "subject": "math",
+      "topic": "fractions"
+    },
+    {
+      "id": "frac_002",
+      "type": "multiple_choice",
+      "prompt": "What is 1/4 + 1/4?",
+      "options": ["1/2", "2/8", "1/8", "2/4"],
+      "answer": "1/2",
+      "feedback": "Excellent! 1/4 + 1/4 = 2/4, which simplifies to 1/2.",
+      "difficulty": 2,
+      "subject": "math",
+      "topic": "fractions"
+    },
+    {
+      "id": "frac_003",
+      "type": "multiple_choice",
+      "prompt": "Which fraction is larger: 3/4 or 2/3?",
+      "options": ["3/4", "2/3", "They are equal", "Cannot determine"],
+      "answer": "3/4",
+      "feedback": "Correct! 3/4 = 0.75 and 2/3 ≈ 0.67, so 3/4 is larger.",
+      "difficulty": 3,
+      "subject": "math",
+      "topic": "fractions"
+    },
+    {
+      "id": "frac_004",
+      "type": "multiple_choice",
+      "prompt": "What is 3/8 of 16?",
+      "options": ["6", "8", "4", "12"],
+      "answer": "6",
+      "feedback": "Perfect! 3/8 × 16 = (3 × 16) ÷ 8 = 48 ÷ 8 = 6.",
+      "difficulty": 3,
+      "subject": "math",
+      "topic": "fractions"
+    },
+    {
+      "id": "frac_005",
+      "type": "true_false",
+      "prompt": "The fraction 4/8 can be simplified to 1/2.",
+      "answer": "True",
+      "feedback": "Correct! 4/8 = 1/2 because both 4 and 8 can be divided by 4.",
+      "difficulty": 2,
+      "subject": "math",
+      "topic": "fractions"
+    }
+  ],
+  "metadata": {
+    "title": "Fraction Fundamentals",
+    "description": "Understanding fractions, equivalents, and basic operations",
+    "version": "1.0",
+    "author": "Educational Team",
+    "grade_level": "3-5",
+    "estimated_time": "10-15 minutes"
+  }
+}

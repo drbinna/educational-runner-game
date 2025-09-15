@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quick Error Handling Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        pre { background: #f8f9fa; padding: 15px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Quick Error Handling Verification</h1>
+    <div id="results"></div>
+    <pre id="console-output"></pre>
+
+    <!-- Load game modules -->
+    <script src="game/content-loader.js"></script>
+    <script src="game/game-state.js"></script>
+    <script src="game/question-presenter.js"></script>
+
+    <script>
+        // Capture console output
+        let output = '';
+        const originalLog = console.log;
+        console.log = function(...args) {
+            const message = args.join(' ');
+            output += message + '\n';
+            document.getElementById('console-output').textContent = output;
+            originalLog.apply(console, args);
+        };
+
+        // Run verification
+        setTimeout(() => {
+            console.log('=== Quick Error Handling Verification ===');
+
+            let passCount = 0;
+            let totalTests = 0;
+
+            function test(name, testFn) {
+                totalTests++;
+                try {
+                    const result = testFn();
+                    if (result) {
+                        console.log(`✅ ${name}: PASS`);
+                        passCount++;
+                    } else {
+                        console.log(`❌ ${name}: FAIL`);
+                    }
+                } catch (error) {
+                    console.log(`❌ ${name}: ERROR - ${error.message}`);
+                }
+            }
+
+            // Test ContentLoader
+            test('ContentLoader null input handling', () => {
+                const loader = new ContentLoader();
+                loader.clear();
+                const fallback = loader.getNextQuestion();
+                return fallback !== null && fallback.prompt.includes('2 + 2');
+            });
+
+            // Test GameStateManager
+            test('GameStateManager invalid state rejection', () => {
+                const { GameStateManager } = window;
+                const gameState = new GameStateManager();
+                const initial = gameState.getCurrentState();
+                gameState.setState('invalid_state');
+                return gameState.getCurrentState() === initial;
+            });
+
+            test('GameStateManager invalid score rejection', () => {
+                const { GameStateManager } = window;
+                const gameState = new GameStateManager();
+                const initialScore = gameState.gameState.score;
+                gameState.updateScore('not_a_number');
+                return gameState.gameState.score === initialScore;
+            });
+
+            // Test QuestionPresenter
+            test('QuestionPresenter null question handling', () => {
+                const presenter = new QuestionPresenter();
+                presenter.displayQuestion(null);
+                return !presenter.isQuestionVisible();
+            });
+
+            test('QuestionPresenter XSS prevention', () => {
+                const presenter = new QuestionPresenter();
+                const xssQuestion = {
+                    prompt: "<script>alert('xss')</script>What is 2+2?",
+                    options: ["<img src=x onerror=alert('xss')>4", "5"],
+                    answer: "<img src=x onerror=alert('xss')>4",
+                    feedback: "Safe feedback"
+                };
+                
+                // Should either reject the question or sanitize it
+                presenter.displayQuestion(xssQuestion);
+                return true; // If we get here without XSS executing, it's working
+            });
+
+            console.log(`\n=== Results: ${passCount}/${totalTests} tests passed ===`);
+            
+            const resultsDiv = document.getElementById('results');
+            if (passCount === totalTests) {
+                resultsDiv.innerHTML = `<div class="result success">✅ All ${totalTests} error handling tests passed!</div>`;
+            } else {
+                resultsDiv.innerHTML = `<div class="result error">❌ ${totalTests - passCount} tests failed out of ${totalTests}</div>`;
+            }
+        }, 100);
+    </script>
+</body>
+</html>

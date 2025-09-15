@@ -1,0 +1,69 @@
+{
+  "gameSettings": {
+    "defaultSubject": "math",
+    "questionInterval": 8000,
+    "playerSpeed": 200,
+    "difficultyProgression": true,
+    "showPerformanceStats": false
+  },
+  "subjects": {
+    "math": {
+      "enabled": true,
+      "displayName": "Mathematics",
+      "dataFile": "data/math-basic.json",
+      "icon": "🔢",
+      "color": "#2E86AB"
+    },
+    "science": {
+      "enabled": true,
+      "displayName": "Science",
+      "dataFile": "data/science-basic.json",
+      "icon": "🔬",
+      "color": "#118AB2"
+    },
+    "vocabulary": {
+      "enabled": true,
+      "displayName": "Vocabulary",
+      "dataFile": "data/vocabulary-basic.json",
+      "icon": "📚",
+      "color": "#7209B7"
+    }
+  },
+  "questionTypes": {
+    "multiple_choice": {
+      "enabled": true,
+      "displayName": "Multiple Choice",
+      "maxOptions": 4,
+      "showNumbers": true
+    },
+    "true_false": {
+      "enabled": true,
+      "displayName": "True or False",
+      "showAsButtons": true
+    },
+    "fill_blank": {
+      "enabled": true,
+      "displayName": "Fill in the Blank",
+      "maxLength": 50,
+      "caseSensitive": false
+    },
+    "matching": {
+      "enabled": true,
+      "displayName": "Matching",
+      "maxPairs": 5,
+      "shuffleOptions": true
+    }
+  },
+  "accessibility": {
+    "highContrast": false,
+    "largeText": false,
+    "keyboardNavigation": true,
+    "screenReaderSupport": true
+  },
+  "performance": {
+    "enableParticleEffects": true,
+    "enableAnimations": true,
+    "targetFrameRate": 60,
+    "adaptiveQuality": true
+  }
+}

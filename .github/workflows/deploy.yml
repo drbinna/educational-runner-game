@@ -1,0 +1,129 @@
+name: Deploy Educational Runner Game
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Validate question sets
+      run: npm run validate
+      
+    - name: Run unit tests
+      run: npm run test:unit
+      
+    - name: Run integration tests
+      run: npm run test:integration
+      
+    - name: Run performance tests
+      run: npm run test:performance
+      
+    - name: Generate test coverage
+      run: npm run test:coverage
+      
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage/lcov.info
+        flags: unittests
+        name: codecov-umbrella
+        
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Validate deployment files
+      run: |
+        # Check that all required files exist
+        test -f index.html || (echo "Missing index.html" && exit 1)
+        test -f main.js || (echo "Missing main.js" && exit 1)
+        test -f sw.js || (echo "Missing sw.js" && exit 1)
+        test -d game || (echo "Missing game directory" && exit 1)
+        test -d data || (echo "Missing data directory" && exit 1)
+        echo "✅ All required files present"
+        
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./
+        exclude_assets: |
+          test/**
+          scripts/**
+          node_modules/**
+          .github/**
+          *.md
+          package*.json
+          jest.config.js
+          .gitignore
+        cname: ${{ secrets.CUSTOM_DOMAIN }}
+        
+  lighthouse:
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Wait for deployment
+      run: sleep 60
+      
+    - name: Run Lighthouse CI
+      uses: treosh/lighthouse-ci-action@v10
+      with:
+        urls: |
+          https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+        configPath: './.lighthouserc.json'
+        uploadArtifacts: true
+        temporaryPublicStorage: true
+        
+  notify:
+    needs: [test, deploy, lighthouse]
+    runs-on: ubuntu-latest
+    if: always() && github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Notify success
+      if: needs.test.result == 'success' && needs.deploy.result == 'success'
+      run: |
+        echo "🎉 Deployment successful!"
+        echo "Game is live at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+        
+    - name: Notify failure
+      if: needs.test.result == 'failure' || needs.deploy.result == 'failure'
+      run: |
+        echo "💥 Deployment failed!"
+        echo "Check the logs above for details."
+        exit 1

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - Educational Runner Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #87CEEB, #98FB98);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+        
+        .offline-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: 1rem;
+        }
+        
+        .offline-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .offline-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin: 1rem 0;
+        }
+        
+        .offline-message {
+            color: #666;
+            margin: 1rem 0;
+            line-height: 1.5;
+        }
+        
+        .retry-button {
+            display: inline-block;
+            background: #4ECDC4;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 1rem;
+            transition: background 0.3s ease;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+        }
+        
+        .retry-button:hover {
+            background: #45B7B8;
+        }
+        
+        .offline-features {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+            text-align: left;
+        }
+        
+        .offline-features h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        .offline-features ul {
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+        
+        .offline-features li {
+            margin: 0.5rem 0;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-icon">📡❌</div>
+        <h1 class="offline-title">You're Offline</h1>
+        <p class="offline-message">
+            It looks like you've lost your internet connection. Don't worry - 
+            the Educational Runner Game has some offline features!
+        </p>
+        
+        <div class="offline-features">
+            <h3>Available Offline:</h3>
+            <ul>
+                <li>Previously loaded question sets</li>
+                <li>Game mechanics and animations</li>
+                <li>Score tracking and progress</li>
+                <li>All core gameplay features</li>
+            </ul>
+        </div>
+        
+        <p class="offline-message">
+            When you're back online, you'll be able to load new question sets 
+            and access additional features.
+        </p>
+        
+        <button class="retry-button" onclick="window.location.reload()">
+            Try Again
+        </button>
+    </div>
+    
+    <script>
+        // Check for connection and auto-reload when back online
+        window.addEventListener('online', () => {
+            console.log('Connection restored');
+            window.location.reload();
+        });
+        
+        // Update UI based on connection status
+        function updateConnectionStatus() {
+            if (navigator.onLine) {
+                window.location.reload();
+            }
+        }
+        
+        // Check connection status periodically
+        setInterval(updateConnectionStatus, 5000);
+    </script>
+</body>
+</html>

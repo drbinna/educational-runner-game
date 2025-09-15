@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Question Flow Integration Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f0f0f0;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .info { color: #007bff; }
+        .warning { color: #ffc107; }
+        #test-output {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .status.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .status.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Question Flow Integration Test</h1>
+        <p>This test verifies that the ContentLoader, QuestionPresenter, and GameStateManager work together correctly through the QuestionFlowManager.</p>
+        
+        <div>
+            <button onclick="runBasicIntegrationTest()">Run Basic Integration Test</button>
+            <button onclick="runTimingTest()">Run Question Timing Test</button>
+            <button onclick="runQueueTest()">Run Question Queue Test</button>
+            <button onclick="runStateTransitionTest()">Run State Transition Test</button>
+            <button onclick="clearOutput()">Clear Output</button>
+        </div>
+        
+        <div id="status" class="status" style="display: none;"></div>
+        <div id="test-output"></div>
+    </div>
+
+    <!-- Load game modules -->
+    <script src="game/content-loader.js"></script>
+    <script src="game/game-state.js"></script>
+    <script src="game/question-presenter.js"></script>
+    <script src="game/question-flow-manager.js"></script>
+
+    <script>
+        let testOutput = document.getElementById('test-output');
+        let statusDiv = document.getElementById('status');
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'success' ? '✓' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️';
+            testOutput.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+            testOutput.scrollTop = testOutput.scrollHeight;
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+        }
+
+        function clearOutput() {
+            testOutput.textContent = '';
+            statusDiv.style.display = 'none';
+        }
+
+        async function runBasicIntegrationTest() {
+            log('=== Basic Integration Test ===');
+            
+            try {
+                // Initialize components
+                const contentLoader = new ContentLoader();
+                const gameStateManager = new GameStateManager();
+                const questionPresenter = new QuestionPresenter();
+                const questionFlowManager = new QuestionFlowManager(contentLoader, questionPresenter, gameStateManager);
+                
+                log('Components initialized successfully', 'success');
+                
+                // Load questions
+                const loadResult = await contentLoader.loadQuestions('data/math-basic.json');
+                if (!loadResult.success) {
+                    throw new Error(`Failed to load questions: ${loadResult.error}`);
+                }
+                
+                log(`Loaded ${contentLoader.getQuestionCount()} questions`, 'success');
+                
+                // Test getting questions
+                const question1 = questionFlowManager.getNextQuestion();
+                const question2 = questionFlowManager.getNextQuestion();
+                
+                if (question1 && question2) {
+                    log(`Got first question: "${question1.prompt}"`, 'success');
+                    log(`Got second question: "${question2.prompt}"`, 'success');
+                } else {
+                    throw new Error('Failed to get questions from flow manager');
+                }
+                
+                // Test configuration
+                questionFlowManager.configure({
+                    minInterval: 3000,
+                    maxInterval: 5000,
+                    allowRepeat: true
+                });
+                
+                log('Configuration updated successfully', 'success');
+                
+                // Test flow statistics
+                const stats = questionFlowManager.getFlowStats();
+                log(`Flow stats - Active: ${stats.isActive}, Total Questions: ${stats.totalQuestions}`, 'success');
+                
+                showStatus('Basic Integration Test Passed!', 'success');
+                log('=== Basic Integration Test Complete ===', 'success');
+                
+            } catch (error) {
+                log(`Test failed: ${error.message}`, 'error');
+                showStatus('Basic Integration Test Failed!', 'error');
+            }
+        }
+
+        async function runTimingTest() {
+            log('=== Question Timing Test ===');
+            
+            try {
+                const contentLoader = new ContentLoader();
+                const gameStateManager = new GameStateManager();
+                const questionPresenter = new QuestionPresenter();
+                const questionFlowManager = new QuestionFlowManager(contentLoader, questionPresenter, gameStateManager);
+                
+                await contentLoader.loadQuestions('data/math-basic.json');
+                log('Questions loaded for timing test', 'success');
+                
+                // Configure for fast testing
+                questionFlowManager.configure({
+                    minInterval: 1000, // 1 second
+                    maxInterval: 2000  // 2 seconds
+                });
+                
+                let questionCount = 0;
+                let testComplete = false;
+                
+                questionFlowManager.addQuestionStartListener((question) => {
+                    questionCount++;
+                    log(`Question ${questionCount} triggered: "${question.prompt.substring(0, 30)}..."`, 'success');
+                    
+                    if (questionCount >= 3) {
+                        testComplete = true;
+                        showStatus('Question Timing Test Passed!', 'success');
+                        log('=== Question Timing Test Complete ===', 'success');
+                    }
+                });
+                
+                // Start the flow
+                gameStateManager.setState(GameStates.PLAYING);
+                log('Game started, waiting for questions...', 'info');
+                
+                // Simulate game updates
+                let updateCount = 0;
+                const maxUpdates = 200; // 10 seconds at 50ms intervals
+                
+                const updateInterval = setInterval(() => {
+                    questionFlowManager.update(50); // 50ms updates
+                    updateCount++;
+                    
+                    if (testComplete || updateCount >= maxUpdates) {
+                        clearInterval(updateInterval);
+                        if (!testComplete) {
+                            log('Timing test timeout - questions may not be triggering', 'warning');
+                            showStatus('Question Timing Test Timeout', 'error');
+                        }
+                    }
+                }, 50);
+                
+            } catch (error) {
+                log(`Timing test failed: ${error.message}`, 'error');
+                showStatus('Question Timing Test Failed!', 'error');
+            }
+        }
+
+        async function runQueueTest() {
+            log('=== Question Queue Test ===');
+            
+            try {
+                const contentLoader = new ContentLoader();
+                const gameStateManager = new GameStateManager();
+                const questionPresenter = new QuestionPresenter();
+                const questionFlowManager = new QuestionFlowManager(contentLoader, questionPresenter, gameStateManager);
+                
+                await contentLoader.loadQuestions('data/math-basic.json');
+                const totalQuestions = contentLoader.getQuestionCount();
+                log(`Loaded ${totalQuestions} questions for queue test`, 'success');
+                
+                // Test cycling through questions
+                const seenQuestions = new Set();
+                
+                for (let i = 0; i < totalQuestions * 2; i++) {
+                    const question = questionFlowManager.getNextQuestion();
+                    if (question) {
+                        seenQuestions.add(question.id);
+                    }
+                }
+                
+                log(`Cycled through questions, saw ${seenQuestions.size} unique questions`, 'success');
+                
+                // Test reset functionality
+                questionFlowManager.reset();
+                contentLoader.resetQuestionQueue();
+                
+                const firstQuestionAfterReset = questionFlowManager.getNextQuestion();
+                if (firstQuestionAfterReset) {
+                    log('Queue reset successfully', 'success');
+                } else {
+                    throw new Error('Failed to get question after reset');
+                }
+                
+                showStatus('Question Queue Test Passed!', 'success');
+                log('=== Question Queue Test Complete ===', 'success');
+                
+            } catch (error) {
+                log(`Queue test failed: ${error.message}`, 'error');
+                showStatus('Question Queue Test Failed!', 'error');
+            }
+        }
+
+        async function runStateTransitionTest() {
+            log('=== State Transition Test ===');
+            
+            try {
+                const contentLoader = new ContentLoader();
+                const gameStateManager = new GameStateManager();
+                const questionPresenter = new QuestionPresenter();
+                const questionFlowManager = new QuestionFlowManager(contentLoader, questionPresenter, gameStateManager);
+                
+                await contentLoader.loadQuestions('data/math-basic.json');
+                
+                let transitions = [];
+                
+                gameStateManager.addStateChangeListener((newState, previousState) => {
+                    transitions.push({ from: previousState, to: newState });
+                    log(`State transition: ${previousState} → ${newState}`, 'info');
+                });
+                
+                // Test state transitions
+                log('Testing state transitions...', 'info');
+                
+                gameStateManager.setState(GameStates.PLAYING);
+                gameStateManager.setState(GameStates.QUESTION);
+                gameStateManager.setState(GameStates.PLAYING);
+                gameStateManager.setState(GameStates.GAMEOVER);
+                gameStateManager.setState(GameStates.MENU);
+                
+                if (transitions.length === 5) {
+                    log(`Recorded ${transitions.length} state transitions`, 'success');
+                    showStatus('State Transition Test Passed!', 'success');
+                } else {
+                    throw new Error(`Expected 5 transitions, got ${transitions.length}`);
+                }
+                
+                log('=== State Transition Test Complete ===', 'success');
+                
+            } catch (error) {
+                log(`State transition test failed: ${error.message}`, 'error');
+                showStatus('State Transition Test Failed!', 'error');
+            }
+        }
+
+        // Auto-run basic test on page load
+        window.addEventListener('load', () => {
+            log('Question Flow Integration Test Page Loaded', 'info');
+            log('Click the buttons above to run different tests', 'info');
+        });
+    </script>
+</body>
+</html>

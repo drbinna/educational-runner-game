@@ -1,0 +1,32 @@
+{
+  "name": "educational-runner-game",
+  "version": "1.0.0",
+  "description": "Educational runner game with JSON-driven content",
+  "main": "main.js",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:comprehensive": "node test/comprehensive-test-runner.js",
+    "test:unit": "jest test/*.test.js --testPathIgnorePatterns=integration performance browser-compatibility",
+    "test:integration": "jest test/integration.test.js",
+    "test:performance": "jest test/performance.test.js --testTimeout=30000",
+    "test:browser": "jest test/browser-compatibility.test.js",
+    "test:content-loader": "jest test/content-loader.test.js",
+    "test:game-state": "jest test/game-state.test.js",
+    "test:question-presenter": "jest test/question-presenter.test.js",
+    "test:runner-mechanics": "jest test/runner-mechanics.test.js",
+    "dev": "python -m http.server 8000",
+    "start": "python -m http.server 8000",
+    "build": "echo 'No build step required for static site'",
+    "deploy:netlify": "netlify deploy --prod",
+    "deploy:vercel": "vercel --prod",
+    "validate": "node scripts/validate-questions.js",
+    "lint": "echo 'Linting not configured - consider adding ESLint'",
+    "pretest": "node scripts/validate-questions.js"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "jest-html-reporters": "^3.1.0"
+  }
+}

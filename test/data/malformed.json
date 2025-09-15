@@ -1,0 +1,10 @@
+{
+  "questions": [
+    {
+      "prompt": "What is 2 + 2?",
+      "options": ["3", "4", "5"],
+      "answer": "4",
+      "feedback": "Correct!"
+    }
+  // Missing closing bracket
+}

@@ -1,0 +1,65 @@
+{
+  "questions": [
+    {
+      "id": "vocab_adv_001",
+      "type": "multiple_choice",
+      "prompt": "What does 'meticulous' mean?",
+      "options": ["Careless", "Very careful and precise", "Fast", "Loud"],
+      "answer": "Very careful and precise",
+      "feedback": "Excellent! 'Meticulous' means showing great attention to detail and being very careful and precise.",
+      "difficulty": 4,
+      "subject": "vocabulary",
+      "topic": "adjectives"
+    },
+    {
+      "id": "vocab_adv_002",
+      "type": "multiple_choice",
+      "prompt": "Which word means 'to make something less severe'?",
+      "options": ["Aggravate", "Mitigate", "Complicate", "Ignore"],
+      "answer": "Mitigate",
+      "feedback": "Correct! 'Mitigate' means to make something less severe, serious, or painful.",
+      "difficulty": 5,
+      "subject": "vocabulary",
+      "topic": "verbs"
+    },
+    {
+      "id": "vocab_adv_003",
+      "type": "fill_blank",
+      "prompt": "The detective's _____ investigation revealed the truth.",
+      "answer": "thorough",
+      "feedback": "Perfect! 'Thorough' means complete and comprehensive, which fits the context of a detailed investigation.",
+      "difficulty": 3,
+      "subject": "vocabulary",
+      "topic": "adjectives"
+    },
+    {
+      "id": "vocab_adv_004",
+      "type": "multiple_choice",
+      "prompt": "What is an antonym for 'abundant'?",
+      "options": ["Plentiful", "Scarce", "Numerous", "Ample"],
+      "answer": "Scarce",
+      "feedback": "Excellent! 'Scarce' means existing in small quantities, which is the opposite of 'abundant' (existing in large quantities).",
+      "difficulty": 4,
+      "subject": "vocabulary",
+      "topic": "antonyms"
+    },
+    {
+      "id": "vocab_adv_005",
+      "type": "true_false",
+      "prompt": "A 'novice' is someone with a lot of experience.",
+      "answer": "False",
+      "feedback": "Correct! A 'novice' is someone who is new to and inexperienced in a job or situation - the opposite of experienced.",
+      "difficulty": 3,
+      "subject": "vocabulary",
+      "topic": "nouns"
+    }
+  ],
+  "metadata": {
+    "title": "Advanced Vocabulary Challenge",
+    "description": "Challenging vocabulary words for advanced learners",
+    "version": "1.0",
+    "author": "Educational Team",
+    "grade_level": "6-8",
+    "estimated_time": "12-18 minutes"
+  }
+}

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Subject System Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f0f0f0;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Subject System Test</h1>
+    
+    <div class="test-section">
+        <h2>Subject Configuration Manager</h2>
+        <button onclick="testSubjectConfig()">Test Subject Configuration</button>
+        <div id="subject-config-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Question Type Handler</h2>
+        <button onclick="testQuestionTypes()">Test Question Types</button>
+        <div id="question-type-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Content Loading</h2>
+        <button onclick="testContentLoading()">Test Content Loading</button>
+        <div id="content-loading-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Subject Switching</h2>
+        <button onclick="testSubjectSwitching()">Test Subject Switching</button>
+        <div id="subject-switching-results"></div>
+    </div>
+
+    <!-- Load the modules -->
+    <script src="game/subject-config.js"></script>
+    <script src="game/question-type-handler.js"></script>
+    <script src="game/content-loader.js"></script>
+
+    <script>
+        let subjectConfigManager, questionTypeHandler, contentLoader;
+
+        // Initialize components
+        try {
+            subjectConfigManager = new SubjectConfigManager();
+            questionTypeHandler = new QuestionTypeHandler();
+            contentLoader = new ContentLoader(subjectConfigManager, questionTypeHandler);
+            console.log('All components initialized successfully');
+        } catch (error) {
+            console.error('Failed to initialize components:', error);
+        }
+
+        function testSubjectConfig() {
+            const resultsDiv = document.getElementById('subject-config-results');
+            let results = '<h3>Subject Configuration Test Results:</h3>';
+            
+            try {
+                // Test getting all subjects
+                const subjects = subjectConfigManager.getAllSubjects();
+                results += `<p class="success">✓ Found ${subjects.length} subjects</p>`;
+                
+                subjects.forEach(subject => {
+                    results += `<p class="info">- ${subject.name} (${subject.id}): ${subject.description}</p>`;
+                });
+                
+                // Test current subject
+                const currentSubject = subjectConfigManager.getCurrentSubject();
+                results += `<p class="success">✓ Current subject: ${currentSubject.name}</p>`;
+                
+                // Test theme
+                const theme = subjectConfigManager.getCurrentTheme();
+                results += `<p class="success">✓ Theme loaded: ${theme.primaryColor}</p>`;
+                
+                // Test question type support
+                const supportsMultipleChoice = subjectConfigManager.supportsQuestionType('multiple_choice');
+                results += `<p class="success">✓ Supports multiple choice: ${supportsMultipleChoice}</p>`;
+                
+            } catch (error) {
+                results += `<p class="error">✗ Error: ${error.message}</p>`;
+            }
+            
+            resultsDiv.innerHTML = results;
+        }
+
+        function testQuestionTypes() {
+            const resultsDiv = document.getElementById('question-type-results');
+            let results = '<h3>Question Type Test Results:</h3>';
+            
+            try {
+                // Test supported types
+                const supportedTypes = questionTypeHandler.getSupportedTypes();
+                results += `<p class="success">✓ Supported types: ${supportedTypes.join(', ')}</p>`;
+                
+                // Test multiple choice validation
+                const mcQuestion = {
+                    id: 'test_mc',
+                    type: 'multiple_choice',
+                    prompt: 'Test question?',
+                    options: ['A', 'B', 'C'],
+                    answer: 'A',
+                    feedback: 'Test feedback'
+                };
+                
+                const mcValidation = questionTypeHandler.validateQuestion(mcQuestion);
+                results += `<p class="${mcValidation.isValid ? 'success' : 'error'}">
+                    ${mcValidation.isValid ? '✓' : '✗'} Multiple choice validation: ${mcValidation.isValid}
+                </p>`;
+                
+                // Test true/false validation
+                const tfQuestion = {
+                    id: 'test_tf',
+                    type: 'true_false',
+                    prompt: 'Test true/false?',
+                    answer: 'True',
+                    feedback: 'Test feedback'
+                };
+                
+                const tfValidation = questionTypeHandler.validateQuestion(tfQuestion);
+                results += `<p class="${tfValidation.isValid ? 'success' : 'error'}">
+                    ${tfValidation.isValid ? '✓' : '✗'} True/false validation: ${tfValidation.isValid}
+                </p>`;
+                
+                // Test fill blank validation
+                const fbQuestion = {
+                    id: 'test_fb',
+                    type: 'fill_blank',
+                    prompt: 'Fill in the _____.',
+                    answer: 'blank',
+                    feedback: 'Test feedback'
+                };
+                
+                const fbValidation = questionTypeHandler.validateQuestion(fbQuestion);
+                results += `<p class="${fbValidation.isValid ? 'success' : 'error'}">
+                    ${fbValidation.isValid ? '✓' : '✗'} Fill blank validation: ${fbValidation.isValid}
+                </p>`;
+                
+            } catch (error) {
+                results += `<p class="error">✗ Error: ${error.message}</p>`;
+            }
+            
+            resultsDiv.innerHTML = results;
+        }
+
+        async function testContentLoading() {
+            const resultsDiv = document.getElementById('content-loading-results');
+            let results = '<h3>Content Loading Test Results:</h3>';
+            
+            try {
+                // Test loading math questions
+                const mathResult = await contentLoader.loadQuestionsForSubject('math');
+                results += `<p class="${mathResult.success ? 'success' : 'error'}">
+                    ${mathResult.success ? '✓' : '✗'} Math questions: ${mathResult.success ? 'Loaded' : mathResult.error}
+                </p>`;
+                
+                if (mathResult.success) {
+                    results += `<p class="info">- Question count: ${contentLoader.getQuestionCount()}</p>`;
+                    results += `<p class="info">- Available types: ${contentLoader.getAvailableQuestionTypes().join(', ')}</p>`;
+                }
+                
+                // Test loading science questions
+                const scienceResult = await contentLoader.loadQuestionsForSubject('science');
+                results += `<p class="${scienceResult.success ? 'success' : 'error'}">
+                    ${scienceResult.success ? '✓' : '✗'} Science questions: ${scienceResult.success ? 'Loaded' : scienceResult.error}
+                </p>`;
+                
+                // Test loading vocabulary questions
+                const vocabResult = await contentLoader.loadQuestionsForSubject('vocabulary');
+                results += `<p class="${vocabResult.success ? 'success' : 'error'}">
+                    ${vocabResult.success ? '✓' : '✗'} Vocabulary questions: ${vocabResult.success ? 'Loaded' : vocabResult.error}
+                </p>`;
+                
+            } catch (error) {
+                results += `<p class="error">✗ Error: ${error.message}</p>`;
+            }
+            
+            resultsDiv.innerHTML = results;
+        }
+
+        async function testSubjectSwitching() {
+            const resultsDiv = document.getElementById('subject-switching-results');
+            let results = '<h3>Subject Switching Test Results:</h3>';
+            
+            try {
+                // Test switching to each subject
+                const subjects = ['math', 'science', 'vocabulary'];
+                
+                for (const subjectId of subjects) {
+                    const switchResult = subjectConfigManager.setCurrentSubject(subjectId);
+                    results += `<p class="${switchResult ? 'success' : 'error'}">
+                        ${switchResult ? '✓' : '✗'} Switch to ${subjectId}: ${switchResult ? 'Success' : 'Failed'}
+                    </p>`;
+                    
+                    if (switchResult) {
+                        const loadResult = await contentLoader.loadQuestionsForSubject(subjectId);
+                        results += `<p class="${loadResult.success ? 'success' : 'error'}">
+                            ${loadResult.success ? '✓' : '✗'} Load ${subjectId} questions: ${loadResult.success ? 'Success' : loadResult.error}
+                        </p>`;
+                        
+                        if (loadResult.success) {
+                            const question = contentLoader.getNextQuestion();
+                            if (question) {
+                                results += `<p class="info">- Sample question: "${question.prompt.substring(0, 50)}..."</p>`;
+                                results += `<p class="info">- Question type: ${question.type}</p>`;
+                            }
+                        }
+                    }
+                }
+                
+            } catch (error) {
+                results += `<p class="error">✗ Error: ${error.message}</p>`;
+            }
+            
+            resultsDiv.innerHTML = results;
+        }
+
+        // Run initial test
+        window.addEventListener('load', () => {
+            console.log('Page loaded, components ready for testing');
+        });
+    </script>
+</body>
+</html>
