@@ -70,23 +70,31 @@ module.exports = {
   projects: [
     {
       displayName: 'unit',
+      testEnvironment: 'jsdom',
       testMatch: ['**/test/**/content-loader.test.js', '**/test/**/game-state.test.js', '**/test/**/question-presenter.test.js', '**/test/**/runner-mechanics.test.js'],
-      testTimeout: 10000
+      testTimeout: 10000,
+      setupFilesAfterEnv: ['<rootDir>/test/setup.js']
     },
     {
       displayName: 'integration',
+      testEnvironment: 'jsdom',
       testMatch: ['**/test/**/integration.test.js'],
-      testTimeout: 20000
+      testTimeout: 20000,
+      setupFilesAfterEnv: ['<rootDir>/test/setup.js']
     },
     {
       displayName: 'performance',
+      testEnvironment: 'jsdom',
       testMatch: ['**/test/**/performance.test.js'],
-      testTimeout: 60000
+      testTimeout: 60000,
+      setupFilesAfterEnv: ['<rootDir>/test/setup.js']
     },
     {
       displayName: 'browser-compatibility',
+      testEnvironment: 'jsdom',
       testMatch: ['**/test/**/browser-compatibility.test.js'],
-      testTimeout: 15000
+      testTimeout: 15000,
+      setupFilesAfterEnv: ['<rootDir>/test/setup.js']
     }
   ]
 };
