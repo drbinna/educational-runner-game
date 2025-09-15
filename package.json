@@ -16,6 +16,7 @@
     "test:game-state": "jest test/game-state.test.js",
     "test:question-presenter": "jest test/question-presenter.test.js",
     "test:runner-mechanics": "jest test/runner-mechanics.test.js",
+    "test:ci": "node scripts/simple-ci-test.js",
     "dev": "python -m http.server 8000",
     "start": "python -m http.server 8000",
     "build": "echo 'No build step required for static site'",

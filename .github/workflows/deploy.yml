@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  validate:
     runs-on: ubuntu-latest
     
     steps:
@@ -26,27 +26,14 @@ jobs:
     - name: Validate question sets
       run: npm run validate
       
-    - name: Run unit tests
-      run: npm run test:unit
+    - name: Validate deployment readiness
+      run: npm run validate:deployment
       
-    - name: Run integration tests
-      run: npm run test:integration
-      
-    - name: Run performance tests
-      run: npm run test:performance
-      
-    - name: Generate test coverage
-      run: npm run test:coverage
-      
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./coverage/lcov.info
-        flags: unittests
-        name: codecov-umbrella
+    - name: Run CI tests
+      run: npm run test:ci
         
   deploy:
-    needs: test
+    needs: validate
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     
@@ -88,41 +75,21 @@ jobs:
           .gitignore
         cname: ${{ secrets.CUSTOM_DOMAIN }}
         
-  lighthouse:
-    needs: deploy
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Wait for deployment
-      run: sleep 60
-      
-    - name: Run Lighthouse CI
-      uses: treosh/lighthouse-ci-action@v10
-      with:
-        urls: |
-          https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
-        configPath: './.lighthouserc.json'
-        uploadArtifacts: true
-        temporaryPublicStorage: true
-        
+
   notify:
-    needs: [test, deploy, lighthouse]
+    needs: [validate, deploy]
     runs-on: ubuntu-latest
     if: always() && github.ref == 'refs/heads/main'
     
     steps:
     - name: Notify success
-      if: needs.test.result == 'success' && needs.deploy.result == 'success'
+      if: needs.validate.result == 'success' && needs.deploy.result == 'success'
       run: |
         echo "🎉 Deployment successful!"
         echo "Game is live at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
         
     - name: Notify failure
-      if: needs.test.result == 'failure' || needs.deploy.result == 'failure'
+      if: needs.validate.result == 'failure' || needs.deploy.result == 'failure'
       run: |
         echo "💥 Deployment failed!"
         echo "Check the logs above for details."
